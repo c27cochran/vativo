@@ -1,0 +1,92 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<!doctype html>
+<html xmlns:fb="http://ogp.me/ns/fb#" lang="en-US">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# zoomvideocall: http://ogp.me/ns/fb/zoomvideocall#">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>@ViewBag.Title </title>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+      <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+<!--     <link type="text/css" rel="stylesheet" href="~/css/all.min.css" /> -->
+<!--     <link type="text/css" rel="stylesheet" href="~/css/signin.min.css" /> -->
+<!--     <link rel="stylesheet" href="~/css/notification.min.css"> -->
+<!--     <link rel="stylesheet" type="text/css" href="~/css/zoom-icon.min.css" /> -->
+<!--     <link href="~/css/style.css" rel="stylesheet" /> -->
+<!--     <link href="~/css/Custom.css" rel="stylesheet" /> -->
+
+    <!-- Carter's custom theme stuff   -->
+    <link href="~/css/theme.css" rel="stylesheet">
+
+    <script src="~/js/jquery-3.1.0.min.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+</head>
+<body>
+    <div class="total-main-content">
+        @************* New Code *************@
+        <header>
+            <div class="main_nav">
+                <nav class="navbar navbar-expand-lg navbar-inverse">
+                    <a class="navbar-brand" href="@Url.Action("index", "dashboard")"><img src="~/images/VativoRxLogo.fw_.png" class="zoomlogo"></a>
+                    <div class="collapse navbar-collapse" id="myNavbar">
+                        <ul class="nav navbar-nav navbar-right menu-navbar-right userNameText">
+                            <div class="dropdown">
+                                @if (HttpContextAccessor.HttpContext.Session.GetString(Utility.ISFIRSTTIMELOGIN) == "true")
+                                {
+                                    <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <li class="pad10 headerText"><strong style="color:#075C74">@HttpContextAccessor.HttpContext.Session.GetString("UserName")</strong></li>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a href="@Url.Action("logout", "user")" class="pad10">&nbsp;Sign Out</a>
+                                    </div>
+                                }
+                            </div>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </header>
+        @********* End New Code *****************@
+
+        @RenderBody();
+        <div id="video_dialog" role="alertdialog" class="noheaderfooterdialog modaldialog hideme">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header clearfix">
+                        <div class="modal-title"></div>
+                        <button class="close simplemodal-close" aria-label="close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-body-container">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="container">
+                <div class="col-md-12">
+                    <div class="ftext">
+                        <p>Copyright ©<label id="idyear"></label> VativoRx, LLC. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+<script>
+    jQuery(document).ready(function () {
+        var current_date = new Date();
+        var date = current_date.getFullYear();
+        $("#idyear").text(date);
+
+    });
+</script>

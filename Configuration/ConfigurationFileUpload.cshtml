@@ -1,0 +1,160 @@
+﻿@model Vativo.UI.ViewModels.NPIMasterViewModel
+@{
+    ViewData["Title"] = ":: VativoRx :: Configuration File Upload";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>NPI/Brand Medicine File Upload</h2>
+
+
+<hr />
+<div class="container">
+    <div class="@ViewBag.cssClass" role="alert">
+        <strong>@ViewBag.message</strong>
+    </div>
+</div>
+<form method="post" enctype="multipart/form-data" asp-controller="Configuration" asp-action="ConfigurationFileUpload">
+    <div class="row">
+        <div class="col-md-12 col-sm-6">
+            <div class="contact-form">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-xs-6">
+                        <div class="form-group">
+                            <label class="labelFile">File Type</label><span class="required Validation-Color">*</span>
+                            <select asp-for="FileType" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.FileTypeList)"></select>
+                            <span asp-validation-for="FileType" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-6" id="idclient" hidden>
+                        <div class="form-group form-hght">
+                            <label>Client</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientlist, "Id", "LegalName"))">
+                                <option value="">Select Client</option>
+                            </select>
+                            <span asp-validation-for="ClientId" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+
+                        <div class="chooseBtn" hidden>
+                            <input class="form-group" type="file" name="formFile" />
+                        </div>
+
+                        <div class="MedispanFiles" hidden>
+                            <label>MF2NAME</label>
+                            <input class="form-group" type="file"  name="formFile" id="Medispanfile1" />
+                            <label>MF2NDC</label>
+                            <input class="form-group" type="file"  name="formFile" id="Medispanfile2" />
+                            <label>MF2PRC</label>
+                            <input class="form-group" type="file"  name="formFile" id="Medispanfile3" />
+                            <label>MF2GPPC</label>
+                            <input class="form-group" type="file"  name="formFile" id="Medispanfile4" />
+                            <span class="Validation-Color" id="spanfile" hidden>Please Upload all files(MF2Name,MF2NDC,MF2PRC,MF2GPPC)</span>
+                        </div>
+
+                        <div class="SpeciltyFiles" hidden>
+                            <input class="form-group" type="file" name="formFile" />
+                        </div>
+
+                        <div class="OptumFile" hidden>
+                            <input class="form-group" type="file" name="formFile" />
+                        </div>
+                        <div class="LiveClaimFile" hidden>
+                            <input class="form-group" type="file" name="formFile" />
+                        </div>
+                        <label class="fileExt">You can only upload xls, xlsx and csv file.</label>
+                    </div><br />
+                    <div class="col-md-4 col-sm-12 uploadBtnWrapper">
+                        <input type="submit" value="Upload" id="submit" class="btn btn-primary btn-round" />
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        SelectFileType();
+        $("#spanfile").hide();
+    });
+    $("#FileType").change(function () {
+        SelectFileType();
+    });
+    $("#submit").click(function () {
+        if ($("#FileType").val() == 2) {
+            if ($("#Medispanfile1").val() == "") {
+                $("#spanfile").show();
+                return false;
+            }
+            if ($("#Medispanfile2").val() == "") {
+                $("#spanfile").show();
+                return false;
+            }
+            if ($("#Medispanfile3").val() == "") {
+                $("#spanfile").show();
+                return false;
+            }
+            if ($("#Medispanfile4").val() == "") {
+                $("#spanfile").show();
+                return false;
+            }
+        }
+    });
+    function SelectFileType() {
+        if ($("#FileType").val() == 1) {
+            $(".MedispanFiles").hide();
+            $(".chooseBtn").show();
+            $(".fileExt").show();
+            $(".SpeciltyFiles").hide();
+            $(".OptumFile").hide();
+            $(".LiveClaimFile").hide();
+            $("#idclient").hide();
+        }
+        else if ($("#FileType").val() == 2) {
+            $(".MedispanFiles").show();
+            $(".chooseBtn").hide();
+            $(".fileExt").hide();
+            $(".SpeciltyFiles").hide();
+            $(".OptumFile").hide();
+            $(".LiveClaimFile").hide();
+            $("#idclient").hide();
+        }
+        else if ($("#FileType").val() == 3) {
+            $(".MedispanFiles").hide();
+            $(".chooseBtn").hide();
+            $(".fileExt").show();
+            $(".SpeciltyFiles").show();
+            $(".OptumFile").hide();
+            $(".LiveClaimFile").hide();
+            $("#idclient").hide();
+        }
+        else if ($("#FileType").val() == 4) {
+            $(".OptumFile").show();
+            $(".fileExt").show();
+            $(".MedispanFiles").hide();
+            $(".chooseBtn").hide();
+            $(".SpeciltyFiles").hide();
+            $(".LiveClaimFile").hide();
+            $("#idclient").hide();
+        } else if ($("#FileType").val() == 5) {
+            $(".OptumFile").hide();
+            $(".fileExt").show();
+            $(".MedispanFiles").hide();
+            $(".chooseBtn").hide();
+            $(".SpeciltyFiles").hide();
+            $(".LiveClaimFile").show();
+            $("#idclient").show();
+        }
+    }
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+            var url = window.location.href;
+            var query = url.split("?")[0];
+            window.location.href = query;
+        });
+    }, 4000);
+</script>

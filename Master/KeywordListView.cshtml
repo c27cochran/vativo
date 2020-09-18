@@ -1,0 +1,113 @@
+﻿@*@model KeywordSegmentList*@
+@model Vativo.UI.ViewModels.KeywordSegmentList
+@{
+    ViewBag.Title = ":: VativoRx :: Keyword List";
+}
+
+<form method="post" class="key-main-scrl postMar">
+    <section>
+        <div class="@ViewBag.Class" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="container">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Keyword List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Create Keyword", "KeywordMaster", "Master", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblkeyword" class="table table-striped table-bordered tabSort" cellspacing="0">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>Client Name</th>
+                                <th>Keyword Name</th>
+                                <th>Keyword Type</th>
+                                <th>Name in Rx Linc</th>
+                                @*<th>Rx Linc Seq.</th>*@
+                                <th>Rx Linc Default Value</th>
+                                @*<th>Name in Relay Health</th>*@
+                                @*<th>Relay Health Seq.</th>*@
+                                @*<th>Relay Health Default Value</th>*@
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.KeywordList)
+                                {
+                                    <tr class="odevFont">
+                                        <td width="5%">
+                                            <label>@i</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ClientName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.KeywordName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.Type</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.Field_Name_in_RxLinc</label>
+                                        </td>
+                                        @*<td>
+                                                <label>@item.RxLincSequenceNo</label>
+                                            </td>*@
+                                        <td>
+                                            <label>@item.RxLincDefaultValue</label>
+                                        </td>
+                                        @*<td>
+                                                <label>@item.Field_Name_in_Relay_Health</label>
+                                            </td>*@
+
+                                        @*<td>
+                                                <label>@item.RelayHealthSequenceNo</label>
+                                            </td>*@
+                                        @*<td>
+                                                <label>@item.RelayHealthDefaultValue</label>
+                                            </td>*@
+                                        <td>
+                                            <a href="@Url.Action("KeywordMaster", "Master", new { keywordMasterID = item.UniqueKeywordID})" title="Edit" data-id=@item.UniqueKeywordID>@*<i class="icon-mar fas fa-edit"></i>*@ <img class="icon-mar" src="/images/ico/edit.png"></a>
+                                            <input asp-for="UniqueKeywordID" type="hidden" value="@item.UniqueKeywordID" />
+                                            <a href="@Url.Action("KeywordDelete", "Master", new { keywordMasterID = item.UniqueKeywordID})" title="Delete" data-id=@item.UniqueKeywordID onclick="return confirm('Are you sure, you want to delete?');">@*<i class="icon-mar fas fa-trash"></i>*@ <img class="icon-mar" src="/images/ico/delete.png"></a>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblkeyword').DataTable({
+            "bSort": true,
+            "scrollX": true,
+            "pagingType": "input",
+            fixedHeader: {
+                header: true
+            }, "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
+        });
+    });
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>

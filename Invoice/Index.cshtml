@@ -1,0 +1,264 @@
+﻿@model Vativo.UI.ViewModels.ClientSetupInvoiceDetailViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Invoice Client List";
+}
+<script src="~/js/multiple-select.js"></script>
+<link href="~/css/multiple-select.css" rel="stylesheet" />
+
+<form method="post">
+    <section>
+        <div class="@ViewBag.cssClass" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12">
+                <div class="contact-form regs-main">
+                    <div class="row">
+                        <div  class="clearfix formb-bt-border">
+                            <div class="left clientnameHead invoiceHdg">
+                                <h4>Invoice Client List</h4>
+                            </div>
+                            <div class="right clientcomnBtn">
+                                @*@Html.ActionLink("Setup Invoice", "SetupInvoice", "Invoice", null, new { @class = "btn btn-primary btn-round" })*@
+                                @Html.ActionLink("Generate Invoice", "SetupInvoice", "Invoice", null, new { @class = "btn btn-primary btn-round" })
+                            </div>
+
+                        </div>
+                        <div class="col-md-12 col-sm-6 col-xs-12 pls-area">
+
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12" hidden>
+                            <div class="form-group form-hght" id="ClientsLegalName">
+                                <label>Clients Name</label><span class="required Validation-Color"></span>
+                                <select asp-for="ClientId" class="multiselect-ui form-control" asp-items="@ViewBag.ClientsLegalNameList as MultiSelectList" multiple="multiple"></select>
+                                <span id="ClientIdSpan" class="Validation-Color"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12" hidden>
+                            <div class="form-group form-hght" id="years">
+                                <label>Year</label><span class="required Validation-Color"></span>
+                                <select asp-for="Year" class="multiselect-ui form-control" asp-items="@ViewBag.Yearlist as MultiSelectList" multiple="multiple"></select>
+                                <span id="yearSpan" class="Validation-Color"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-3 col-xs-12" hidden>
+                            <div class="form-group form-hght" id="months">
+                                <label>Month</label><span class="required Validation-Color"></span>
+                                <select asp-for="Month" class="multiselect-ui form-control" multiple="multiple">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                                <span id="monthSpan" class="Validation-Color"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12" hidden>
+                            <div class="form-group form-hght">
+                                <label>Invoice Type</label><span class="required Validation-Color"></span>
+                                <select asp-for="InvoiceType" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.InvoiceTypeList)"></select>
+                                <span asp-validation-for="InvoiceType" class="Validation-Color"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table id="tblClient" class="table table-striped table-bordered tabSort" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>Client Name</th>
+                                <th>Invoice No</th>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Invoice Generated Date</th>
+                                <th>Due Date</th>
+                                <th>Invoice Type</th>
+                                <th>Excel</th>
+                                <th>PDF</th>
+
+                                @*<th align="center">Action</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.InvoiceClientsDetails)
+                                {
+                                    <tr class="odevFont">
+                                        <td width="5%">@i</td>
+                                        <td>
+                                            <label>@item.LegalName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.InvoiceNo</label>
+                                        </td>
+
+                                        <td>
+                                            <label>@item.Year</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.Month</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.InvoiceGenerateDate</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.DueDate</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.InvoiceType</label>
+                                        </td>
+                                        <td>
+                                            <a id="download" href="@Url.Action("FileDownload", "Invoice", new { UniqueId=item.UniqueinvoiceId, FileType ="Excel"  })">Download</a>
+                                        </td>
+                                        <td>
+                                            <a id="download" href="@Url.Action("FileDownload", "Invoice", new { UniqueId=item.UniqueinvoiceId, FileType ="PDF"  })">Download</a>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+
+<script type="text/javascript" class="init">
+
+    $(document).ready(function () {
+        var table = $('#tblClient').DataTable({
+
+            "bSort": true,
+            "pagingType": "input",
+            "columnDefs": [
+                { "orderable": false, "targets": -1 },
+                { "orderable": false, "targets": -2 }
+            ],
+            //dom: 'lrtip',
+            //initComplete: function () {
+            //    this.api().columns([1]).every(function () {
+            //        var column = this;
+            //        console.log(column);
+            //        var select = $("#ClientId");
+            //        column.data().unique().sort().each(function (d, j) {
+            //            select.append('<option value="' + d + '">' + d + '</option>')
+            //            //alert(d);
+            //        });
+            //    });
+            //    this.api().columns([3]).every(function () {
+            //        var column = this;
+            //        console.log(column);
+            //        var select = $("#Year");
+            //        column.data().unique().sort().each(function (d, j) {
+            //            select.append('<option value="' + d + '">' + d + '</option>')
+            //        });
+            //    });
+            //    this.api().columns([4]).every(function () {
+            //        var column = this;
+            //        console.log(column);
+            //        var select = $("#Month");
+            //        column.data().unique().sort().each(function (d, j) {
+            //            select.append('<option value="' + d + '">' + d + '</option>')
+            //        });
+            //    });
+            //    this.api().columns([7]).every(function () {
+            //        var column = this;
+            //        console.log(column);
+            //        var select = $("#InvoiceType");
+            //        //column.data().unique().sort().each(function (d, j) {
+            //        //    select.append('<option value="' + d + '">' + d + '</option>')
+            //        //});
+            //    });
+
+            //    //$("#ClientId,#Year,#Month").material_select();
+            //}
+        });
+
+        $('#ClientId').on('change', function () {
+            var search = [];
+
+            $.each($('#ClientId option:selected'), function () {
+
+                //var client = $(this).text().substr(0, $(this).text().indexOf('('));
+                search.push($(this).text());
+                //search.push(client);
+                //alert($(this).text());
+            });
+
+            search = search.join('|');
+            table.column(1).search(search, true, false).draw();
+        });
+
+        $('#Year').on('change', function () {
+            var search = [];
+
+            $.each($('#Year option:selected'), function () {
+                search.push($(this).val());
+            });
+
+            search = search.join('|');
+            table.column(3).search(search, true, false).draw();
+        });
+
+        $('#Month').on('change', function () {
+            var search = [];
+
+            $.each($('#Month option:selected'), function () {
+                search.push($(this).text());
+            });
+
+            search = search.join('|');
+            table.column(4).search(search, true, false).draw();
+        });
+
+        $('#InvoiceType').on('change', function () {
+            var search = [];
+
+            $.each($('#InvoiceType option:selected'), function () {
+                search.push($(this).text().replace(" ", "").replace(" ", ""));
+            });
+
+            search = search.join('|');
+            table.column(7).search(search, true, false).draw();
+        });
+
+    });
+
+    $("#ClientId").multipleSelect({
+        filter: true,
+        placeholder: "--Select Client Name--"
+    });
+    $("#Year").multipleSelect({
+        filter: true,
+        placeholder: "--Select Year--"
+    });
+    $("#Month").multipleSelect({
+        filter: true,
+        placeholder: "--Select Month--"
+
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+
+</script>

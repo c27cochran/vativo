@@ -1,0 +1,333 @@
+﻿@model Vativo.UI.ViewModels.SpecialtyReportViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Specialty/NonSpecialty Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/js/jquery.dataTables.min.js"></script>
+
+<h3 class="client-hdg">Specialty/Non-Specialty Report</h3>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght">
+                    <label>Date</label><span class="required Validation-Color">*</span>
+                    <select asp-for="DateId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.DateComparisonList)"></select>
+                    <span asp-validation-for="DateId" class="Validation-Color"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght">
+                    <label>From Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="FromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght">
+                    <label>To Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="ToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="toDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght">
+                    <label>Client</label><span class="required Validation-Color">*</span>
+                    <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientlist, "UniqueClientId", "LegalName"))"></select>
+                    <span id="ClientId" asp-validation-for="ClientId" class="Validation-Color"></span>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght">
+                    <label>Group Id</label><span class="required Validation-Color">*</span>
+                    <select asp-for="GroupId" class="form-control">
+                        <option value="">Select Group</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-4">
+                <div class="form-group form-hght btnWrapper getreportBtn">
+                    <input type="button" id="submitForm" value="Get Report" class="btn btn-primary btn-round hght-reg" />
+                    <div id="ExcelReport" hidden>
+                        <a id="download" class="btn btn-primary btn-round hght-reg" onclick="GetExcel()">Export Excel</a>
+                    </div>
+                    <div id="PdfReport" hidden>
+                        <a class="btn btn-primary btn-round hght-reg" onclick="GetPDF()">Export PDF</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</form>
+
+@*<div style="text-align:center" class="alert alert-danger" id="idNoResult" hidden>
+        <label class="Validation-Color">No Record Found</label>
+    </div>*@
+
+<div id="idReport">
+    <table style="width:100%" id="idHeaderTable" hidden>
+        <tbody>
+            <tr>
+                <td>
+                    <table id="idHeaderTable1" class="display nowrap" style="width:100%" cellspacing="0" cellpadding="0">
+                        <div style="padding-left: 15px; padding-right: 15px;">
+                            <div class="headerLogo">
+                                <div>
+                                    <img src="https://vativorx.net/images/VativoRxLogo.fw_.png" alt="" />
+                                </div>
+                            </div>
+                            <tr></tr>
+                            <tr></tr>
+                            <tr></tr>
+                        </div>
+                        <div style="text-align:right;" id="idGenerateDate" hidden>
+                            <div>
+                                <strong><label>@Model.GenerateDate</label></strong>
+                            </div>
+                        </div>
+                        <div align="center" style="max-width: 1140px; margin: 20px auto;">
+                            <div style="text-align:center;">
+                                <div>
+                                    <h3>Specialty / Non-Specialty Utilization  Report</h3>
+                                    <strong> <label id="idDate"></label> From <label id="idFrom"></label> Through <label id="idTo"></label></strong>
+                                    <h5>
+                                        <span><strong>Client:</strong><span style="margin-bottom:0;"><label id="idPharmacy"></label></span></span>
+                                    </h5>
+                                    <h5>
+                                        <span><strong>Group:</strong><span style="margin-bottom:0;"><label id="idGroup"></label></span></span>
+                                    </h5>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <label style="margin: 10px 0; font-weight:bold; font-size:24px;">Non-Specialty</label>
+
+                                </div>
+                            </div>
+                        </div>
+                    </table>
+                    <table id="idHeaderTable2" class="table" style="width: 1140px; margin: 0px auto;" cellspacing="0" cellpadding="0">
+                        <tbody>
+                            <tr>
+                                <td style="border-top: 4px solid #325490; padding-top:8px; padding-bottom:8px;">Brand/Generic Code</td>
+                                <td style="text-align:left; border-top: 4px solid #325490; padding-top:8px; padding-bottom:8px;">Total Rxs</td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: 4px solid #325490;  padding-top:8px; padding-bottom:8px;">Brand</td>
+                                <td style="text-align:left; border-top: 4px solid #325490;  padding-top:8px; padding-bottom:8px;" id="NonSpecialtyTotalRxs"></td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: 4px solid #325490; border-bottom: 4px solid #325490;  padding-top:8px; padding-bottom:8px;">Total</td>
+                                <td style="text-align:left; border-top: 4px solid #325490; border-bottom: 4px solid #325490;  padding-top:8px; padding-bottom:8px;" id="NonSpecialtyTotal"></td>
+                            </tr>
+
+                            <tr>
+
+                                <td align="center" colspan="2"><h5 style="font-weight:bold; font-size:24px; padding-top:15px;">Specialty</h5></td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: 4px solid #325490; padding-top:8px; padding-bottom:8px;">Brand/Generic Code</td>
+                                <td style="text-align:left; border-top: 4px solid #325490; padding-top:8px; padding-bottom:8px;">Total Rxs</td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: 4px solid #325490;  padding-top:8px; padding-bottom:8px;">Brand</td>
+                                <td style="text-align:left; border-top: 4px solid #325490;  padding-top:8px; padding-bottom:8px;" id="SpecialtyTotalRxs"></td>
+                            </tr>
+
+                            <tr>
+                                <td style="border-top: 4px solid #325490; border-bottom: 4px solid #325490;  padding-top:8px; padding-bottom:8px;">Total</td>
+                                <td style="text-align:left; border-top: 4px solid #325490; border-bottom: 4px solid #325490;  padding-top:8px; padding-bottom:8px;" id="SpecialtyTotal"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table id="idHeaderTable3" style="width: 1140px; margin: 20px auto;">
+                        <div style="width:100%; text-align:center;">
+
+                            <div colspan="2" style="">
+                                <p style="" class="paraBottom">
+                                    This document, including any associated documents, may contain information that is confidential and may be privileged and exempt from disclosure under applicable law. It is intended solely for the use of the
+                                    individual or entity for which it is created. If you are not the intended recipient of this information, you are hereby notified that any use, disclosure, dissemination, or copying of this document is strictly prohibited. If you
+                                    have received this document in error, please notify the distributor. Thank you for your cooperation.
+                                </p>
+                            </div>
+
+                        </div>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<form id="TheForm" method="post" action="/report/DownloadPDF" target="TheWindow">
+    <input type="hidden" id="html" name="html" value="" />
+    <input type="hidden" id="fileName" name="fileName" value="" />
+</form>
+
+<form id="TheFormExcel" method="get" action="/report/SpeciltyReportDownload" target="TheWindow">
+    <input type="hidden" id="formClientID" name="ClientID" value="" />
+    <input type="hidden" id="formGroupID" name="GroupID" value="" />
+    <input type="hidden" id="formFromDate" name="FromDate" value="" />
+    <input type="hidden" id="formToDate" name="ToDate" value="" />
+    <input type="hidden" id="formDateId" name="DateId" value="" />
+</form>
+
+
+<script type="text/javascript">
+
+     $(function () {
+        GetGroupIdByClientID();
+        $("#idDate").text($("#DateId option:selected").text());
+         $("#FromDate").datepicker({
+             dateFormat: "mm-dd-yy",
+             maxDate: '0',
+             onSelect: function (selectedDate, instance) {
+                 $('#ToDate').datepicker('option', 'minDate', selectedDate);
+             },
+         });
+         $("#ToDate").datepicker({
+             dateFormat: "mm-dd-yy",
+             onSelect: function (selectedDate, instance) {
+                 $('#FromDate').datepicker('option', 'maxDate', selectedDate);
+             },
+         });
+
+        $("#idFrom").text($("#FromDate").val());
+        $("#idTo").text($("#ToDate").val());
+    });
+
+    //$("#DateId").change(function () {
+    //    $("#idDate").text($("#DateId option:selected").text());
+    //});
+
+    $("#ClientId").change(function () {
+        GetGroupIdByClientID();
+    });
+
+    function GetGroupIdByClientID() {
+        var ClientID = $("#ClientId option:selected").val();
+        $("#GroupId").empty();
+        if (ClientID != "") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetGroupIdByClientID", "Report")',
+                dataType: 'json',
+                data: { ClientID: ClientID },
+                // Get Groupid List
+                success: function (Result) {
+                    $.each(Result, function (key, value) {
+                        $("#GroupId").append($("<option></option>").val(value.value).html(value.text));
+                    });
+                },
+                error: function (Result) {
+                    alert("Error");
+                }
+            });
+        } else {
+            $("#GroupId").append($("<option>Select Group</option>"));
+        }
+    }
+
+    $("#submitForm").click(function () {
+        if ($("#ClientId option:selected").val() != "") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SpecialtyAndNonSpecialtyReport", "Report")',
+                dataType: 'json',
+                async: false,
+                data: { ClientID: $("#ClientId option:selected").val(), GroupID: $("#GroupId option:selected").text(), FromDate: $("#FromDate").val(), ToDate: $("#ToDate").val(), DateId: $("#DateId option:selected").val() },
+                success: function (Result) {
+                    if (Result.nonSpecialtyTotalRxs == "0" && Result.nonSpecialtyTotal == "0" && Result.specialtyTotalRxs == "0" && Result.specialtyTotal == "0") {
+                        $("#idHeaderTable").show();
+                        $("#idDate").text($("#DateId option:selected").text());
+                        $("#idTo").text($("#ToDate").val());
+                        $("#idFrom").text($("#FromDate").val());
+                        $("#idPharmacy").text($("#ClientId option:selected").text());
+                        $("#idGroup").text($("#GroupId option:selected").text());
+                        $("#NonSpecialtyTotalRxs").text(0);
+                        $("#NonSpecialtyTotal").text(0);
+                        $("#SpecialtyTotalRxs").text(0);
+                        $("#SpecialtyTotal").text(0);
+                        $("#ExcelReport").hide();
+                        $("#PdfReport").hide();
+                    } else {
+                        $("#idHeaderTable").show();
+                        $("#idNoResult").hide();
+                        $("#idDate").text($("#DateId option:selected").text());
+                        $("#idTo").text($("#ToDate").val());
+                        $("#idFrom").text($("#FromDate").val());
+                        $("#idPharmacy").text($("#ClientId option:selected").text());
+                        $("#idGroup").text($("#GroupId option:selected").text());
+                        $("#NonSpecialtyTotalRxs").text(Result.nonSpecialtyTotalRxs);
+                        $("#NonSpecialtyTotal").text(Result.nonSpecialtyTotal);
+                        $("#SpecialtyTotalRxs").text(Result.specialtyTotalRxs);
+                        $("#SpecialtyTotal").text(Result.specialtyTotal);
+                        $("#ExcelReport").show();
+                        $("#PdfReport").show();
+                    }
+                },
+                error: function (Result) {
+                    alert("Error");
+                }
+            });
+        } else {
+            alert("Please select client");
+        }
+    });
+
+
+    function GetPDF() {
+        $("#idGenerateDate").show();
+        var html = $('#idReport').html();
+        document.getElementById('html').value = html;
+        document.getElementById('fileName').value = $("#ClientId option:selected").text() + "_SpeciltyandNonSpeciltyReport.pdf";
+        console.log(html);
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheForm').submit();
+        $("#idGenerateDate").hide();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);        
+    }
+    function GetExcel() {
+        $("#formClientID").val($("#ClientId option:selected").val());
+        $("#formGroupID").val($("#idGroup").text());
+        $("#formFromDate").val($("#FromDate").val());
+        $("#formToDate").val($("#ToDate").val());
+        $("#formDateId").val($("#DateId option:selected").val());
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheFormExcel').submit();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);  
+    }
+    //$("#download").click(function (e) {
+    //    //window.open('data:application/vnd.ms-excel,' + encodeURIComponent($('div[id$=idReport]').html()));
+    //    //e.preventDefault();
+
+    //    var postfix = $("#ClientId option:selected").text()+" "+"Specialty/NonSpecialtyReport";
+    //    //creating a temporary HTML link element (they support setting file names)
+    //    let file = new Blob([$('#idReport').html()], { type: "application/vnd.ms-excel" });
+
+    //    let url = URL.createObjectURL(file);
+
+    //    let a = $("<a />", {
+    //        href: url,
+    //        download: postfix +".xls"
+    //    })
+    //        .appendTo("body")
+    //        .get(0)
+    //        .click();
+    //    e.preventDefault();
+    //});
+
+</script>

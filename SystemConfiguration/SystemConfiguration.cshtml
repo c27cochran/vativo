@@ -1,0 +1,92 @@
+﻿@model Vativo.UI.ViewModels.SystemConfigurationViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: System Configuration";
+}
+
+@*<link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+    rel="stylesheet">*@
+<h3 class="client-hdg">System Configuration</h3>
+<hr />
+<div class="alert alert-primary" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="contact-form">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group text-center">
+                                <label>Enable/Disable Service :-</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group checkMain text-center">
+                                <label>Rxlinc File Upload Service</label>
+                                <input type="checkbox" asp-for="IsUploadService" class="checkbox checkInp" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group checkMain text-center">
+                                <label>Rxlinc File Download Service</label>
+                                <input type="checkbox" asp-for="IsDownloadService" class="checkbox checkInp" />
+                                <input asp-for="UniqueSystemConfigId" type="hidden" />
+                            </div>
+                        </div>
+
+                        @*Added by Pooja on 12 june 2020*@
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group checkMain text-center">
+                                <label>Switch Type :-</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group checkMain text-center">
+                                <label>RSI</label>
+                                <input asp-for="SwitchType" type="radio" value="RSI" class="radio checkInp" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-sm-4">
+                            <div class="form-group checkMain text-center">
+                                <label>RxLinc</label>
+                                <input asp-for="SwitchType" type="radio" value="RxLinc" class="radio checkInp" />
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                </div>
+                <div class="col-md-6 col-sm-6 btnwrapperOth">
+                    <div class="form-group btnWrapper">
+                        @if (@ViewBag.Status == "Update")
+                        {
+                            <input type="submit" value="Update" class="btn btn-primary btn-round hght-reg" />
+                        }
+                        else
+                        {
+                            <input type="submit" id="submitForm" value="Update" class="btn btn-primary btn-round hght-reg" />
+                        }
+                    </div>
+                    <em>Please make sure you know what you're doing!</em>
+                    <br />
+                    <em>These settings can affect revenue.</em>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>
+

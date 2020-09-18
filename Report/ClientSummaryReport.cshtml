@@ -1,0 +1,218 @@
+﻿@model Vativo.UI.ViewModels.ClientSummaryViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::ClientSummaryReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="client-hdg">Client Summary Report</h3>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>Date</label><span class="required Validation-Color">*</span>
+                    <select asp-for="DateId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.DateComparisonList)"></select>
+                    <span asp-validation-for="DateId" class="Validation-Color"></span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>From Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSFromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>To Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght btnWrapper clientsumBtn getreportBtn">
+                    <input type="submit" id="submitForm" value="Get Report" class="btn btn-primary btn-round hght-reg" />
+                    <div id="ExcelReport" hidden>
+                        <a id="download" class="btn btn-primary btn-round hght-reg" href="@Url.Action("SummaryReportDownload", "Report",new {  dateId=Model.DateId,fromDate = Model.DOSFromDate,toDate = Model.DOSToDate})">Export Excel</a>
+                    </div>
+                    <div id="PdfReport" hidden>
+                        <a class="btn btn-primary btn-round hght-reg" onclick="GetPDF()">Export PDF</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<form id="TheForm" method="post" action="/report/DownloadPDF" target="TheWindow">
+    <input type="hidden" id="html" name="html" value="" />
+    <input type="hidden" id="fileName" name="fileName" value="" />
+</form>
+@if (Model.ObjClientSummaryReporList.Count <= 0)
+{
+    <div style="text-align:center" class="alert alert-danger" id="isNoResult">
+        <label class="Validation-Color">No Record Found</label>
+    </div>
+}
+<div id="ReportSection" class="pdfTable">
+    <div id="idReport">
+        <div style="text-align:center;" id="idHeader" hidden>
+            <div>
+                <strong><label style="font-size: 30px;">CLIENT SUMMARY REPORT</label></strong>
+            </div>
+        </div>
+        <div style="text-align:right;" id="idGenerateDate" hidden>
+            <div>
+                <strong><label>@Model.GenerateDate</label></strong>
+            </div>
+        </div>
+        <div style="text-align:center;" id="idFToDate" hidden>
+            <div>
+                <strong> <label id="idDate"></label>:- From <label id="idFrom"></label> Through <label id="idTo"></label></strong>
+            </div>
+        </div>
+        <div style="text-align:center; margin-bottom:10px;" id="idHeaderClientName" hidden>
+            <div>
+                <strong> <label>Client:<span style="margin-bottom:0;"><label id="name">@Model.HeaderClientName</label></span></label></strong>
+            </div>
+        </div>
+
+        <table id="tblReport"  class="table ctable" style="margin-top: 40px; ">
+            <thead style="width:100%; background: #075b73;">
+                <tr>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Client Name</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Group Id</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Total Claims</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Valid Claims</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Generic Claims</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Other Exception</td>
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Paid Claims</td>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var item in Model.ObjClientSummaryReporList)
+                    {
+                        <tr>
+                            <td style=" border-right: 2px solid #325490;border-left: 2px solid #325490;border-bottom: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:center">
+                                <label>@item.ClientName</label>
+                            </td>
+                            <td style=" border-right: 2px solid #325490; border-bottom: 2px solid #325490;padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:center;">
+                                <label>@item.GroupId</label>
+                            </td>
+                            <td style=" border-right: 2px solid #325490;border-bottom: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                <label>@item.TotalClaimProcessed</label>
+                            </td>
+                            <td style=" border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;border-bottom: 2px solid #325490;text-align:right;padding-right:8px;">
+                                <label>@item.ValidCount</label>
+                            </td>
+                            <td style=" border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px;border-bottom: 2px solid #325490; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                <label>@item.GenericCount</label>
+                            </td>
+                            @*<td style="border-right: 2px solid #325490; border-bottom: 2px solid #325490;">
+                                    <label>@item.NPICount</label>
+                                </td>*@
+                            <td style=" border-right: 2px solid #325490;padding-left:6px; padding-right:8px;border-bottom: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                <label>@item.ExceptionCount</label>
+                            </td>
+                            <td style=" border-right: 2px solid #325490;border-bottom: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                <label>@item.PaidCount</label>
+                            </td>
+                            @*<td>
+                                    <label>@item.OptumCount</label>
+                                </td>*@
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var table;
+    $(document).ready(function () {
+     table = $('#tblReport').DataTable({
+        "bSort": true,
+        "pagingType": "input",
+            //"scrollX": true,
+            lengthMenu: [[10, 25, 50, 250, -1], [10, 25, 50, 250, "All"]]
+        });
+    });
+
+    function GetPDF() {
+        table.page.len(-1).draw();
+        $("#tblReport_length").hide();
+        $("#tblReport_filter").hide();
+        $("#tblReport_info").hide();
+        $("#tblReport_paginate").hide();
+        $("#idHeader").show();
+        $("#idDate").text($("#DateId option:selected").text());
+        $(".dataTables_scrollHead").removeAttr("style");
+        $(".dataTables_scrollHeadInner").removeAttr("style");
+        $(".dataTable.no-footer").removeAttr("style");
+
+        $("#idGenerateDate").show();
+        $("#idFToDate").show();
+        $("#idHeaderClientName").show();
+
+        var html = $('#ReportSection').html();
+        document.getElementById('html').value = html;
+        document.getElementById('fileName').value = $("#name").text() + "_SummaryReport.pdf";
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheForm').submit();
+
+
+        $("#idGenerateDate").hide();
+        $("#idFToDate").hide();
+        $("#idHeaderClientName").hide();
+        $("#tblReport_length").show();
+        $("#tblReport_filter").show();
+        $("#tblReport_info").show();
+        $("#tblReport_paginate").show();
+        $(".dataTables_scrollHead").attr("style","overflow: hidden; position: relative; border: 0px; width: 100%;");
+        $(".dataTables_scrollHeadInner").attr("style", "box-sizing: content-box; padding-right: 0px; width: 100%; ");
+        $(".dataTable.no-footer").attr("style","width: 100%; margin-left: 0px;");
+        $("#idHeader").hide();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);
+        table.page.len(10).draw();
+    }
+
+    $(function () {
+
+        if ($('#tblReport tbody tr').children().length == 1 && '@Model.ObjClientSummaryReporList.Count' <= 0) {
+            $("#ReportSection").hide();
+        }
+        else {
+            $("#ReportSection").show();
+            $("#ExcelReport").show();
+            $("#PdfReport").show();
+        }
+
+        $("#idFrom").text($("#DOSFromDate").val());
+        $("#idTo").text($("#DOSToDate").val());
+
+        $("#DOSFromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#DOSToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#DOSToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#DOSFromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+
+      });
+
+</script>

@@ -1,0 +1,205 @@
+﻿@*@model KeywordViewModel*@
+@model Vativo.UI.ViewModels.KeywordViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Keyword Master";
+}
+
+<h3 class="client-hdg">Keyword Master</h3>
+<hr />
+<div class="@ViewBag.Class" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<form method="post">
+    <div class="col-md-12 col-sm-12">
+        <div class="contact-form keyWordFormWrapper">
+            <div class="row">
+                <div class="col-md-12 col-sm-12" id="DuplicateCheck">
+                    <div class="form-group check-main chekDis">
+                        <!--<input class="check-area" id="chkReference" type="checkbox" name="Duplicate" />-->
+                        <input type="checkbox" id="chkReference" name="Duplicate" class="check-area"><label class="legal-lab">Duplicate of other Client</label>
+                        <input asp-for="isDuplicate" type="hidden" />
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    <div class="form-group">
+                        <label>Legal Name</label><span class="required Validation-Color">*</span>
+                        <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(ViewBag.ClientList, "ClientId", "LegalName"))">
+                            <option value="">Select Legal Name</option>
+                        </select>
+                        <span asp-validation-for="ClientId" class="Validation-Color"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-sm-6" id="ReferenceLegalName">
+                    <div class="form-group">
+                        <label>Reference Legal Name</label><span class="required Validation-Color">*</span>
+                        <select asp-for="ReferenceClientId" class="form-control" asp-items="@(new SelectList(ViewBag.ReferenceClientList, "ClientId", "LegalName"))">
+                            <option value="">Select Legal Name</option>
+                        </select>
+                        <span asp-validation-for="ReferenceClientId" class="Validation-Color"></span>
+                    </div>
+                </div>
+
+                <div class="mainblock">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <input asp-for="UniqueKeywordID" type="hidden" />
+                            <label>Keyword Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="KeywordName" class="form-control" maxlength="50" />
+                            <span asp-validation-for="KeywordName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <label>Keyword Type</label><span class="required Validation-Color">*</span>
+                            <select asp-for="Type" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.KeywordTypeList)" onchange="TypeChange();"> </select>
+                            <span asp-validation-for="Type" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6" id="idFieldValue" hidden>
+                        <div class="form-group">
+                            <label>Field Value</label><span class="required Validation-Color">*</span>
+                            <input asp-for="FieldValue" class="form-control" disabled="disabled" />
+                            <span asp-validation-for="FieldValue" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    @*<div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>Segment</label><span class="required Validation-Color">*</span>
+                                <select asp-for="Segment" class="form-control" asp-items="@(new SelectList(ViewBag.SegmentList, "Id", "Name"))">
+                                    <option value="">Select Segment</option>
+                                </select>
+                                <span asp-validation-for="Segment" class="Validation-Color"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>Segment Code</label>
+                                <input asp-for="SegmentCode" class="form-control" />
+                                <span asp-validation-for="SegmentCode" class="Validation-Color"></span>
+                            </div>
+                        </div>*@
+
+                    @*<div class="col-sm-12 col-xs-12">
+                            <div class="form-group">
+                                <h3 class="lincStyl">RxLinc</h3>
+                            </div>
+                        </div>*@
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <label>Field Name in RxLinc</label><span class="required Validation-Color">*</span>
+                            <select asp-for="Field_Name_in_RxLinc" class="form-control" asp-items="@(new SelectList(ViewBag.MasterKeyword, "RxLincName", "RxLincName"))">
+                                <option value="">Select RxLinc</option>
+                            </select>
+                            <span asp-validation-for="Field_Name_in_RxLinc" class="Validation-Color"></span>
+                        </div>
+                    </div>
+
+                    @*<div class="col-md-6 col-sm-6">
+                            <div class="form-group">
+                                <label>Rx Linc Sequence Number</label><span class="required Validation-Color">*</span>
+                                <input asp-for="RxLincSequenceNo" class="form-control" maxlength="3" />
+                                <span asp-validation-for="RxLincSequenceNo" class="Validation-Color"></span>
+                            </div>
+                        </div>*@
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group">
+                            <label>RxLinc Default Value</label>
+                            <input asp-for="RxLincDefaultValue" class="form-control" />
+                            <span asp-validation-for="RxLincDefaultValue" class="Validation-Color"></span>
+                        </div>
+                    </div>
+
+                    @*<fieldset class="col-md-12 col-sm-6">
+                            <legend>Relay Health</legend>
+                            <div class="col-md-6 col-sm-6">
+                                <div class="form-group">
+                                    <label>Field Name in Relay Health</label><span class="required Validation-Color">*</span>
+                                    <select asp-for="Field_Name_in_Relay_Health" class="form-control" asp-items="@(new SelectList(ViewBag.MasterKeyword, "RelayHealthName", "RelayHealthName"))">
+                                        <option value="">Select Relay Health</option>
+                                    </select>
+                                    <span asp-validation-for="Field_Name_in_Relay_Health" class="Validation-Color"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-sm-6">
+                                <div class="form-group">
+                                    <label>Relay Health Default Value</label>
+                                    <input asp-for="RelayHealthDefaultValue" class="form-control" />
+                                    <span asp-validation-for="RelayHealthDefaultValue" class="Validation-Color"></span>
+                                </div>
+                            </div>
+                        </fieldset>*@
+                </div>
+
+                <div class="form-group key-update col-sm-12">
+                    @if (@ViewBag.Status == "Update")
+                    {
+                        <div class="row wrapperKeyMaster">
+                            <input type="submit" value="Update" class="btn btn-primary btn-round registerBtn" />
+                            <div class="back-area">
+                                <a href="@Url.Action("keywordlistview", "master")">Back to List</a>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row wrapperKeyMaster">
+                            <input type="submit" value="Submit" class="btn btn-primary btn-round registerBtn" />
+                            <div class="back-area">
+                                <a href="@Url.Action("keywordlistview", "master")">Back to List</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="col-md-12 col-sm-12">
+        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        TypeChange();
+        $("#ReferenceLegalName").hide();
+        if ($("#ClientId").val() != "") {
+            $("#DuplicateCheck").hide();
+        }
+    });
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+    function TypeChange() {
+        var value = $('select#Type option:selected').val();
+        if (value == 'CommaSeparate' || value == 'DerivedFromTable') {
+            $("#FieldValue").removeAttr('disabled');
+            $("#idFieldValue").show();
+        }
+        else {
+            $("#idFieldValue").hide();
+            $("#FieldValue").val(null);
+            $("#FieldValue").attr("disabled", "disabled");
+        }
+    }
+
+    $("#chkReference").change(function () {
+        if ($(this).prop('checked')) {
+            $(".mainblock").hide();
+            $("#ReferenceLegalName").show();
+            $("#isDuplicate").val(true);
+        } else {
+            $(".mainblock").show();
+            $("#ReferenceLegalName").hide();
+            $("#isDuplicate").val(false);
+        }
+    });
+
+</script>
+

@@ -1,0 +1,226 @@
+﻿@model Vativo.UI.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = ":: VativoRx :: Claim Detailed Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 class="client-hdg">Claim Detailed Report</h3>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>Date</label><span class="required Validation-Color">*</span>
+                    <select asp-for="DateId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.DateComparisonList)"></select>
+                    <span asp-validation-for="DateId" class="Validation-Color"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>From Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="FromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>To Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="ToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="toDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group">
+
+                </div>
+
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group btnWrapper">
+
+                    <input type="submit" id="submitForm" value="Get Report" class="btn btn-primary btn-round hght-reg" />
+                    <div id="ExcelReport" hidden>
+                        <a id="download" class="btn btn-primary btn-round hght-reg" href="@Url.Action("DetailedReportDownload", "Report",new {  dateId=Model.DateId,fromDate = Model.FromDate,toDate = Model.ToDate})">Export Excel</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<div id="ReportSection">
+    @*<table id="tblReport" class="table table-striped table-bordered" cellspacing="0" width="100%">
+            <thead class="thead-inverse">
+                <tr>
+                   <th>Account Name</th>
+                    <th>Group Id</th>
+                    <th>NPI</th>
+                    <th>Rx Number</th>
+                    <th>Fill Date</th>
+                    <th>Refill Number</th>
+                    <th>File Upload Date</th>
+                    <th>Patient ID</th>
+                    <th>Prescriber Last Name</th>
+                    <th>Prescriber First Name</th>
+                    <th>Patient DOB</th>
+                    <th>NDC</th>
+                    <th>Drug Name</th>
+                    <th>Strength</th>
+                    <th>Generic/OTC</th>
+                    <th>Prescriber NPI</th>
+                    <th>Validation Status</th>
+                    <th>Submission Date</th>
+                    <th>Submission Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var item in Model.reportDetailViewModels)
+                    {
+                        <tr style="text-align:center;">
+                            <td>
+                                <label>@item.AccountName</label>
+                            </td>
+                            <td>
+                                <label>@item.GroupId</label>
+                            </td>
+                            <td>
+                                <label>@item.NPI</label>
+                            </td>
+                            <td>
+                                <label>@item.RxNumber</label>
+                            </td>
+                            <td>
+                                <label>@item.DateOfService</label>
+                            </td>
+                            <td>
+                                <label>@item.RefillNumber</label>
+                            </td>
+                            <td>
+                                <label>@item.FileUploadDate</label>
+                            </td>
+                            <td>
+                                <label>@item.PatientID</label>
+                            </td>
+                            <td>
+                                <label>@item.PrescriberLastName</label>
+                            </td>
+                            <td>
+                                <label>@item.PrescriberFirsttName</label>
+                            </td>
+                            <td>
+                                <label>@item.PatientDOB</label>
+                            </td>
+                            <td>
+                                <label>@item.NDC</label>
+                            </td>
+                            <td>
+                                <label>@item.DrugName</label>
+                            </td>
+                            <td>
+                                <label>@item.Strength</label>
+                            </td>
+                            <td>
+                                <label>@item.GenericOTCBrand</label>
+                            </td>
+                            <td>
+                                <label>@item.PrescriberNPI</label>
+                            </td>
+                            <td>
+                                <label>@item.ValidationStatus</label>
+                            </td>
+                            <td>
+                                <label>@item.SubmissionDate</label>
+                            </td>
+                            <td>
+                                <label>@item.SubmissionStatus</label>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>*@
+</div>
+
+<script type="text/javascript">
+    $(function () {
+
+
+        $("#FromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#ToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#ToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#FromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+
+        @*if ($('#tblReport tbody tr').children().length == 1 && '@Model.reportDetailViewModels.Count' <= 0  ) {
+            $("#ReportSection").hide();
+        }
+        else {
+            $("#ReportSection").show();
+            $("#ExcelReport").show();
+        }*@
+      });
+
+    $("#AccountName").change(function () {
+        if ($("#AccountName option:selected").text() =="All") {
+            $("#idgroup").hide();
+            $('#GroupId').empty();
+        } else {
+            $("#idgroup").show();
+            GetGroupIds();
+        }
+    });
+
+    $("#GroupId").change(function () {
+        $("#Gid").val($("#GroupId option:selected").val())
+    });
+
+    if ($("#AccountName option:selected").text() == "All") {
+        $("#idgroup").hide();
+        $('#GroupId').empty();
+    } else {
+        $("#idgroup").show();
+        GetGroupIds();
+        $("#GroupId").val($("#Gid").val())
+    }
+    function GetGroupIds() {
+        var AccountName = $("#AccountName").val();
+         $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetGroupIds", "Report")',
+                //async: false,
+                dataType: 'json',
+                data: { AccountName: AccountName },
+                // Get Groupid List
+             success: function (data) {
+                 //debugger;
+                 if (data.length > 0) {
+                     var selectbox = document.getElementById('GroupId');
+                     $('#GroupId').empty();
+                    optn = document.createElement("option");
+                    for (var i = 0; i < data.length; i++) {
+                        optn = document.createElement("option");
+                        optn.text = data[i].value;
+                        optn.value = data[i].value;
+                        selectbox.options.add(optn);
+                    }
+                 }
+                },
+            });
+    }
+
+</script>
+

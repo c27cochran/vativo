@@ -1,0 +1,125 @@
+﻿
+@model Vativo.UI.ViewModels.OptumClaimReportViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Optum Correction File List";
+}
+
+<form method="post" class="postMar">
+    <section>
+        <div class="@ViewBag.cssClass" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Optum Correction File List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Upload File", "OptumClaimReport", "Report", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblRebateClaimFile" class="table table-striped table-bordered tabSort" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                @*<th>NPI</th>*@
+                                <th>Legal Name</th>
+                                <th>Uploaded Date</th>
+                                <th>Uploaded By</th>
+                                <th>Processed Date</th>
+                                <th>Validation Success</th>
+                                <th>Other Exception</th>
+
+                                <th align="center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.RebateClaimReport)
+                                {
+                            <tr class="odevFont">
+                                <td width="5%">@i</td>
+                                @*<td class="npi-section">
+            <label>@item.Npi</label>
+        </td>*@
+                                <td>
+                                    <label>@item.LegalName</label>
+                                </td>
+
+                                <td>
+                                    <label>@item.CreatedOn</label>
+                                </td>
+                                <td>
+                                    <label>@item.CreatedBy</label>
+                                </td>
+                                <td>
+                                    <label>@item.ProcessedDate</label>
+                                </td>
+                                <td align="center">
+                                    @if (item.FileStatus == "Pending" || item.FileStatus == "Exception")
+                                    {
+                                        <label>@item.FileStatus</label>
+                                    }
+                                    else if (string.IsNullOrEmpty(item.ValidationSucccessFilePath))
+                                    {
+                                        <span>Not Available</span>
+                                    }
+                                    else
+                                    {
+                                        <a id="download" href="@Url.Action("FileDownload", "Report", new {  ReportId=item.UniqueOptumClaimId, ReportType="OptumValid" })">Download</a>
+                                    }
+                                </td>
+                                <td align="center">
+                                    @if (item.FileStatus == "Pending" || item.FileStatus == "Exception")
+                                    {
+                                        <label>@item.FileStatus</label>
+                                    }
+                                    else if (string.IsNullOrEmpty(item.OtherExceptionFilePath))
+                                    {
+                                        <span>Not Available</span>
+                                    }
+                                    else
+                                    {
+                                        <a id="download" href="@Url.Action("FileDownload", "Report", new { ReportId = item.UniqueOptumClaimId, ReportType = "OptumOtherException" })"> Download </a>
+                                    }
+                                </td>
+
+                                <td align="center" class="iconSection">
+
+                                    <a href="@Url.Action("DeleteOptumClaimReport", "Report", new { reportID = item.UniqueOptumClaimId})" title="Delete" data-id=@item.UniqueOptumClaimId onclick="return confirm('Are you sure, you want to delete?');"><img class="icon-mar" src="~/images/ico/delete.png" /></a>
+
+                                    <input asp-for="UniqueOptumClaimId" type="hidden" value="@item.UniqueOptumClaimId" />
+                                </td>
+                            </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblRebateClaimFile').DataTable({
+            "bSort": true, "scrollX": true, "pagingType": "input", "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
+        });
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>
+

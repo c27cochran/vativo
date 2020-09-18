@@ -1,0 +1,35 @@
+﻿@model Vativo.UI.ViewModels.RegistrationViewModel
+@{
+    Layout = null;
+}
+
+<div class="row">
+    <div>
+        <div class="container">
+            @if (@ViewBag.IsClient == null)
+            {
+            <div class="headerBox">
+                <div class="row">
+                    <div class="col-md-9 headerSection"><h4>Profile</h4></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1">&nbsp;</div>
+                    <div class="col-md-10"><strong>Name:</strong> &nbsp;<span class="headerContent">@Model.FirstName  @Model.LastName </span></div>                   
+                </div>
+                <div class="row">
+                    <div class="col-md-1">&nbsp;</div>
+                    <div class="col-md-10"><strong>Email:</strong> &nbsp;<span class="headerContent">@Model.Email</span></div>                  
+                </div>
+                @*<div class="row">
+                    <div class="col-md-1">&nbsp;</div>
+                    <div class="col-md-10"><strong>Address:</strong> &nbsp;<span class="headerContent">@Model.Address </span></div>                    
+                </div>*@
+                <div class="row">
+                    <div class="col-md-1">&nbsp;</div>
+                    <div class="col-md-10"><strong>Zipcode:</strong> &nbsp;<span class="headerContent">@Model.Zipcode</span></div>                 
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

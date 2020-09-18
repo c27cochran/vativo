@@ -1,0 +1,115 @@
+﻿@model Vativo.UI.ViewModels.FileViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewBag.Title = ":: VativoRx :: FileUpload";
+}
+<h3>Document Upload</h3>
+
+<form method="post" enctype="multipart/form-data" asp-controller="File" asp-action="FileUpload">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="contact-form">
+                <div class="row">
+                    @{
+                        if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN || @HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_SALES_REPRESENTATIVE
+                            || @HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER)
+                        {
+                            <div class="col-md-6 col-sm-6">
+                                <div class="form-group form-hght">
+                                    <label>Client</label><span class="required Validation-Color">*</span>
+                                    <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientlist, "UniqueClientId", "LegalName"))">
+                                        <option value="">Select Client</option>
+                                    </select>
+                                    <span asp-validation-for="ClientId" class="Validation-Color"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <div class="form-group form-hght">
+                                    <label>File Type</label><span class="required Validation-Color">*</span>
+                                    <select asp-for="ClaimFileType" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.ClaimFileType)"></select>
+                                    <span asp-validation-for="ClaimFileType" class="Validation-Color"></span>
+                                </div>
+                            </div>
+
+
+                        }
+                    }
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label>Group Id</label><span class="required Validation-Color">*</span>
+                            <select asp-for="GroupId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.GroupIdList)"></select>
+                            <span asp-validation-for="GroupId" class="Validation-Color"></span>
+                            <input asp-for="GId" type="hidden" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group checkMain">
+                            
+                            <label>Validate 180 days old claims </label>
+                            <input type="checkbox" asp-for="Is180daysrule" class="checkbox checkInp" />
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class="chooseBtn">
+                            <input type="file" name="formFile" />
+                        </div>
+                        You can only upload xls, xlsx and csv file.
+                    </div><br />
+                    <div class="col-md-4 col-sm-12 uploadBtnWrapper">
+                        <input type="submit" value="Upload" class="btn btn-primary btn-round" />
+                    </div>
+                    <div class="col-md-12 col-sm-12">
+                        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                    </div><br />
+
+                    <div class="col-md-12 col-sm-12">
+                        <strong class="filedisclamPara">
+                            Disclaimer: Claims processed through a PBM are NOT rebate eligible and should not be uploaded. If PBM claims are uploaded in error please notify your account manager as soon as possible.
+                        </strong>
+                    </div><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $("#ClientId").change(function () {
+        GetGroupIds();
+    });
+    $("#GroupId").change(function () {
+        $("#GId").val($("#GroupId option:selected").val())
+    });
+    var selectedValue = $("#ClientId option:selected").val();
+    if (selectedValue != null) {
+        GetGroupIds();
+        $("#GroupId").val($("#GId").val())
+       }
+    function GetGroupIds() {
+        var ClientId = $("#ClientId").val();
+         $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetGroupsByClientID", "File")',
+                async: false,
+                dataType: 'json',
+             data: { ClientId: ClientId },
+                // Get Groupid List
+             success: function (data) {
+                 debugger;
+                 if (data.length > 0) {
+                     var selectbox = document.getElementById('GroupId');
+                     $('#GroupId').empty();
+                    for (var i = 0; i < data.length; i++) {
+                        optn = document.createElement("option");
+                        optn.text = data[i].text;
+                        optn.value = data[i].value;
+                        selectbox.options.add(optn);
+                     }
+
+                 }
+                },
+            });
+    }
+</script>

@@ -1,0 +1,118 @@
+﻿@*@model ClientViewModel*@
+@model Vativo.UI.ViewModels.ClientDetailsViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Client List";
+}
+
+<form class="formMar" method="post">
+    <section>
+        <div class="@ViewBag.cssClass" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Client List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Create Client", "ClientRegistration", "Client", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblClient" class="table table-striped table-bordered tabSort" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>Legal Name</th>
+                                <th>Account Name</th>
+                                <th>NPI</th>
+                                <th>Group ID</th>
+                                <th>Parent Company</th>
+                                <th>Contact Person</th>
+                                <th>Contact Person Email</th>
+                                <th>Phone No.</th>
+                                <th align="center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.ClientRecord)
+                                {
+                                    <tr class="odevFont">
+                                        <td width="5%">@i</td>
+                                        <td>
+                                            <label>@item.LegalName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.AccountName</label>
+                                        </td>
+                                        <td class="labWbrk" width="15%">
+                                            <label>@item.Npi</label>
+                                        </td>
+                                        <td class="group-ID">
+                                            <label>@item.GroupId</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ClientName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ContactPersonName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ContactPersonEmail</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ContactPersonPhone</label>
+                                        </td>
+
+                                        <td align="center" class="iconSection">
+                                            @if (item.IsEnable)
+                                            {
+                                                <a href="@Url.Action("ClientRegistration", "Client", new { Id = item.UniqueClientId})" title="Edit" data-id=@item.UniqueClientId><img class="icon-mar" src="~/images/ico/edit.png" /></a>
+                                                <a href="@Url.Action("ClientDelete", "Client", new { Id = item.UniqueClientId})" title="Delete" data-id=@item.UniqueClientId onclick="return confirm('Are you sure, you want to delete?');">
+                                                    <img class="icon-mar" src="~/images/ico/delete.png" />
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("ChangeClientStatus", "Client", new {IsEnable=item.IsEnable, Id = item.UniqueClientId })" title="Enable" data-id=@item.UniqueClientId onclick="return confirm('Are you sure, you want to enable?');">
+                                                    <img src="~/images/ico/Off (1).png" />
+                                                </a>
+                                            }
+                                            <input asp-for="UniqueClientId" type="hidden" value="@item.UniqueClientId" />
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblClient').DataTable({
+            "bSort": true,
+            "scrollX": true,
+            "pagingType": "input",
+            "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
+
+        });
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>

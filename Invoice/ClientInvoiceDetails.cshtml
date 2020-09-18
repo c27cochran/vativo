@@ -1,0 +1,439 @@
+﻿@*@{
+        ViewData["Title"] = "ClientInvoiceDetails";
+    }
+
+    <h2>ClientInvoiceDetails</h2>*@
+
+
+@model Vativo.UI.ViewModels.ClientSetupInvoiceDetailViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Client Invoice Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/js/jquery.dataTables.min.js"></script>
+
+
+
+<h3 class="client-hdg">Invoice for Client</h3>
+<form method="post" id="form">
+    <div id="idReport">
+        <input id="idhiddClientId" asp-for="ClientId" type="hidden" value="@Model.ClientId" />
+        <input id="idhiddMonth" asp-for="Month" type="hidden" value="@Model.Month" />
+        <input id="idhiddYear" asp-for="Year" type="hidden" value="@Model.Year" />
+        <input id="idhiddInvoiceType" asp-for="InvoiceType" type="hidden" value="@Model.InvoiceType" />
+        <div id="divalert" class="alert alert-danger" role="alert" hidden>
+            <strong>Please enter a numeric value.</strong>
+        </div>
+        <div class="loading" style="display:none">Loading&#8230;</div>
+        <table style="max-width: 1140px; width: 100%; margin: 5px auto 0;">
+            <tr>
+                <td>
+                    <table id="example" class="display nowrap" style="width:100%; margin-top: 5px;" cellspacing="0" cellpadding="0">
+                        <thead style="display: table-caption; padding-bottom:15px; padding-right: 15px;">
+                            <tr class="headerLogo">
+                                <td colspan="4">
+                                    <img src="https://vativorx.net/images/VativoRxLogo.fw_.png" alt="" />
+                                </td>
+                            </tr>
+                            <tr></tr>
+                            <tr></tr>
+                            <tr></tr>
+                        </thead>
+                        <tr></tr>
+                        <tr>
+                            <td style="padding-top:8px; padding-bottom:8px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.CompanyName</label>
+                                @*<label asp-for="CompanyDetails.CompanyName">CompanyDetails.CompanyName</label>*@
+                                <input id="idcompanyName" asp-for="CompanyDetails.CompanyName" type="hidden" value="@Model.CompanyDetails.CompanyName" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:8px; padding-bottom:8px; padding-left: 16px; padding-right: 8px;"><b>Invoice #</b></td>
+                            <td style="padding-top:8px; padding-bottom:8px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.InvoiceNo</label>
+                                <input id="idGenerateDate" asp-for="InvoiceNo" type="hidden" value="@Model.InvoiceNo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.Address</label>
+                                <input id="idCompanyAddress" asp-for="CompanyDetails.Address" type="hidden" value="@Model.CompanyDetails.Address" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Invoice Date:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.InvoiceGenerateDate</label>
+                                <input id="idInvoiceGenerateDate" asp-for="InvoiceGenerateDate" type="hidden" value="@Model.InvoiceGenerateDate" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.City,@Model.CompanyDetails.pincode</label>
+                                <input id="idCompanyCity" asp-for="CompanyDetails.City" type="hidden" value="@Model.CompanyDetails.City,@Model.CompanyDetails.pincode" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Billing Period:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.BillingPeriod</label>
+                                <input id="idBillingPeriod" asp-for="BillingPeriod" type="hidden" value="@Model.BillingPeriod" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">Phone&nbsp;&nbsp;@Model.CompanyDetails.Phone</label>
+                                <input id="idCompanyPhone" asp-for="CompanyDetails.Phone" type="hidden" value="@Model.CompanyDetails.Phone" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Due Date:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.DueDate</label>
+                                <input id="idDueDate" asp-for="DueDate" type="hidden" value="@Model.DueDate" />
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        <tr>
+                            <td style="padding-top:26px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;"><b>Bill To:</b></td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.LegalName</label>
+                                <input id="idName" asp-for="LegalName" type="hidden" value="@Model.LegalName" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.ServiceLocationAddress</label>
+                                <input id="idClientAddress" asp-for="ServiceLocationAddress" type="hidden" value="@Model.ServiceLocationAddress" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">Phone &nbsp;@Model.ContactPersonPhone</label>
+                                <input id="idClientPhone" asp-for="ContactPersonPhone" type="hidden" value="@Model.ContactPersonPhone" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <table id="maintable" class="table ctable" style="margin-top: 40px;  border: 2px solid #033c4c;" width="100%" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr style="background: #075b73;">
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px; font-weight: bold; text-align:center;">Date</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idDate"></label></td>*@
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px;font-weight: bold; text-align:center;">Group Id</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idGroupId"></label></td>*@
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px;font-weight: bold; text-align:center;">Number of Claims Submitted</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idClaimsSubmitted"></label></td>*@
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px;font-weight: bold; text-align:center;">Number of Claims Processed</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idClaimsProcessed"></label></td>*@
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px;font-weight: bold; text-align:center;">Number of Claims Reversed</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idClaimsReversed"></label></td>*@
+                    <td style="border-right: 2px solid #033c4c; color:#fff; padding-left:4px; padding-right:4px; padding-top:8px; padding-bottom:8px;font-weight: bold; text-align:center;">Processing Fee</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idProcessingFee"></label></td>*@
+                    <td style="padding-top:8px; padding-bottom:8px; color:#fff; padding-left:4px; padding-right:4px; font-weight: bold; text-align:center;">AmountDue</td>
+                    @*<td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;"><label id="idAmountDue"></label></td>*@
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int totalrows = 0;
+                    string grpCount = "";
+                    var GrandTotalClaimSubmitted = 0;
+                    var GrandTotalClaimsProcessed = 0;
+                    var GrandTotalClaimReversedProcessed = 0;
+                    var GrandTotalAmountDue = (decimal)0.00;
+                    foreach (var group in Model.ClientInvoiceDetails.GroupBy(x => x.GroupId))
+                    {
+
+                        grpCount += group.Key + ",";
+                        int indexVal = 0;
+                        int i = 1;
+
+                        foreach (var item in group)
+                        {
+                            <tr id="idtr_@totalrows">
+                                <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:center">
+                                    <input id="idCreatedDate" type="hidden" asp-for="@item.CreatedDate" class=" form-control" maxlength="20" />
+                                    <label id="idlblCreatedDate" class="lblCreatedDateClass_@totalrows">@item.CreatedDate</label>
+                                </td>
+
+                                <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:center;">
+                                    <input id="idGroupId" type="hidden" asp-for="@item.GroupId" class=" form-control" maxlength="20" value="@item.GroupId" />
+                                    <label id="idlblGroupId" class="lblGroupIdClass_@totalrows">@item.GroupId</label>
+                                </td>
+                                <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                    <input id="idFileRowCount_@i-@group.Key" asp-for="@item.FileRowCount" class=" form-control allownumeric hideInputBox filecountlabelModel_@totalrows" maxlength="20" onkeyup="fnClaimsProcessedCount(this,@i,'@item.GroupId')" min="0" />
+                                    <label id="idlblFileRowCount_@i-@group.Key" hidden class="showLabels">@item.FileRowCount</label>
+                                </td>
+                                <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                    <input id="idClaimsProcessedCount_@i-@group.Key" asp-for="@item.ClaimsProcessedCount" class=" form-control allownumeric hideInputBox" maxlength="20" onkeyup="fnClaimsProcessedCount(this,@i,'@item.GroupId')" min="0" />
+                                    <label id="idlblClaimsProcessedCount_@i-@group.Key" hidden class="showLabels lblClaimsProcessedClass_@totalrows">@item.ClaimsProcessedCount</label>
+                                    <span id="ClaimsProcessedError_@i-@group.Key" hidden class="Validation-Color">Please enter the correct Processed claim.</span>
+                                </td>
+                                <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                    <input id="idReversedClaimCount_@i-@group.Key" asp-for="@item.ReversedClaimCount" class=" form-control allownumeric hideInputBox" maxlength="20" onkeyup="fnClaimsProcessedCount(this,@i,'@item.GroupId')" min="0" />
+                                    <label id="idlblReversedClaimCount_@i-@group.Key" hidden class="showLabels lblClaimsReversedClass_@totalrows">@item.ReversedClaimCount</label>
+                                    <span id="ClaimsReversedError_@i-@group.Key" hidden class="Validation-Color">Please enter the correct Reversed claim.</span>
+                                </td>
+                                <td class="pro" style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;padding-right:8px;">
+                                    <span class="input-euro left dollar">
+                                        <input id="idProcessingFee_@i-@group.Key" asp-for="@item.ProcessingFee" class=" form-control allownumericwithdecimal hideInputBox  " maxlength="20" onkeyup="fnClaimsProcessedCount(this,@i,'@item.GroupId')" />
+                                    </span>
+                                    <label id="idlblProcessingFee_@i-@group.Key" hidden class="showLabels lblProcessingFeeClass_@totalrows ">$@item.ProcessingFee</label>
+                                </td>
+                                <td style="border-top: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                                    <input id="idAmountDue" asp-for="@item.AmountDue" type="hidden" class=" form-control" maxlength="20" />
+                                    <label id="idlblAmountDue_@i-@group.Key" class="lblAmountDueClass_@totalrows" onkeyup="fnClaimsProcessedCount(this,@i,'@item.GroupId')">$@item.AmountDue</label>
+                                </td>
+                            </tr>
+                            indexVal = i;
+                            totalrows++;
+                            i++;
+                            
+                        }
+                        
+                        <tr  id="idtr_@totalrows">
+                            <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;font-weight:bold; text-align:left;"><label>Total for Group @group.Key</label></td>
+
+                            <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;"></td>
+                            <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;font-weight:bold;text-align:right;padding-right:8px;">
+
+                                <label id="idlblhiddTotalClaimsSubmitted_@group.Key" hidden>@indexVal</label>
+                                <label style="font-weight:bold" id="idlblTotalClaimsSubmitted_@group.Key">@group.Sum(x => x.FileRowCount)</label>
+
+                            </td>
+                            <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:right;padding-right:8px;">
+                                @*<label id="idlblAccountSetupQuantity" hidden>@item.ClaimsProcessedCount</label>*@
+                                <label id="idlblhiddTotalClaimProcessed_@group.Key" hidden>@indexVal</label>
+                                <label style="font-weight:bold" id="idlblTotalClaimProcessed_@group.Key">@group.Sum(x => x.ClaimsProcessedCount)</label>
+                            </td>
+                            <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:right;padding-right:8px;">
+                                <label id="idlblhiddTotalReversedClaim_@group.Key" hidden>@indexVal</label>
+                                <label style="font-weight:bold" id="idlblTotalReversedClaim_@group.Key">@group.Sum(x => x.ReversedClaimCount)</label>
+                            </td>
+                            <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:right;padding-right:8px;"></td>
+                            <td style="border-top: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:right;">
+                                <label id="idlblhiddTotalAmountDue_@group.Key" hidden>@indexVal</label>
+                                <label style="font-weight:bold" id="idlblTotalAmountDue_@group.Key">$@group.Sum(x => x.AmountDue)</label>
+                            </td>
+                        </tr>
+                        GrandTotalClaimSubmitted += @group.Sum(x => x.FileRowCount);
+                        GrandTotalClaimsProcessed += @group.Sum(x => x.ClaimsProcessedCount);
+                        GrandTotalClaimReversedProcessed += @group.Sum(x => x.ReversedClaimCount);
+                        GrandTotalAmountDue += @group.Sum(x => x.AmountDue);
+                    }
+
+                    <tr>
+                        <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;font-weight:bold; padding-right:8px;">
+                            <label>Grand Total</label>
+                            <label id="idlbltotalrows" hidden>@totalrows</label>
+                        </td>
+                        <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                            <label id="idlblGrpCount" hidden>@grpCount</label>
+                        </td>
+                        <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px; ">
+                            <label style="font-weight:bold" id="idlblGrandTotalClaimSubmitted">@GrandTotalClaimSubmitted</label>
+                        </td>
+                        <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px; ">
+                            <label style="font-weight:bold" id="idlblGrandTotalClaimProcessed">@GrandTotalClaimsProcessed</label>
+                        </td>
+                        <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px; text-align:right;padding-right:8px;">
+                            <label style="font-weight:bold" id="idlblGrandTotalClaimReversed">@GrandTotalClaimReversedProcessed</label>
+                        </td>
+                        <td style="border-top: 2px solid #325490;border-right: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px; "></td>
+                        <td style="border-top: 2px solid #325490; padding-left:6px; padding-right:8px; padding-top:8px; padding-bottom:8px;text-align:right;">
+                            <label style="font-weight:bold" id="idlblGrandTotalAmountDue">$@GrandTotalAmountDue</label>
+                        </td>
+
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+
+
+    </div>
+    <div class="col-md-6 col-sm-6">
+        <div class="form-group form-hght btnWrapper regBtnWrapper">
+            <input type="button" id="submitForm" value="Save" class="btn btn-primary btn-round hght-reg" />
+            <span>&nbsp;</span>
+        </div>
+    </div>
+
+</form>
+<script>
+    $(document).ready(function () {
+        $(".hideInputBox").css("text-align", "right");
+    });
+    function fnClaimsProcessedCount(txt, id, groupId) {
+
+        if ($("#idClaimsProcessedCount_" + id + "-" + groupId).val().length != 0 && $("#idReversedClaimCount_" + id + "-" + groupId).val().length != 0 && $("#idProcessingFee_" + id + "-" + groupId).val().length != 0) {
+
+            if (parseInt($("#idClaimsProcessedCount_" + id + "-" + groupId).val()) > parseInt($("#idFileRowCount_" + id + "-" + groupId).val()) ) {
+                $("#ClaimsProcessedError_" + id + "-" + groupId).show();
+                $("#submitForm").prop('disabled', true);
+
+            }
+            else if (parseInt($("#idReversedClaimCount_" + id + "-" + groupId).val()) > parseInt($("#idFileRowCount_" + id + "-" + groupId).val())
+                || parseInt($("#idReversedClaimCount_" + id + "-" + groupId).val()) > parseInt($("#idClaimsProcessedCount_" + id + "-" + groupId).val()) ) {
+
+                    //alert(1);
+                    $("#ClaimsReversedError_" + id + "-" + groupId).show();
+                    $("#submitForm").prop('disabled', true);
+
+            }
+
+            else
+            {
+                $("#divalert").hide();
+                $("#submitForm").prop('disabled', false);
+                $("#ClaimsProcessedError_" + id + "-" + groupId).hide();
+                $("#ClaimsReversedError_" + id + "-" + groupId).hide();
+
+                var amountCalculate = (parseInt($("#idClaimsProcessedCount_" + id + "-" + groupId).val()) + parseInt($("#idReversedClaimCount_" + id + "-" + groupId).val())) * parseFloat($("#idProcessingFee_" + id + "-" + groupId).val());
+
+                $("#idlblAmountDue_" + id + "-" + groupId).text("$" + amountCalculate.toFixed(2).toString());
+
+                var count = $("#idlblhiddTotalClaimProcessed_" + groupId).text();
+                //alert(count);
+                var sum = 0;
+                var FileCountSum = 0;
+                var ReversedClaimSum = 0;
+                var AmountDueSum = 0;
+                for (var i = 1; i <= count; i++) {
+                    sum += parseFloat($("#idClaimsProcessedCount_" + i + "-" + groupId).val());
+                    FileCountSum += parseFloat($("#idFileRowCount_" + i + "-" + groupId).val());
+                    ReversedClaimSum += parseFloat($("#idReversedClaimCount_" + i + "-" + groupId).val());
+                    AmountDueSum += parseFloat($("#idlblAmountDue_" + i + "-" + groupId).text().replace("$", ""));
+
+                }
+                $("#idlblTotalClaimProcessed_" + groupId).text(sum);
+                $("#idlblTotalClaimsSubmitted_" + groupId).text(FileCountSum);
+                $("#idlblTotalReversedClaim_" + groupId).text(ReversedClaimSum);
+                $("#idlblTotalAmountDue_" + groupId).text("$" + AmountDueSum.toFixed(2));
+
+                //Update values in lable to show in pdf
+
+                //var test = $("#"+txt.id).val();
+                //alert(test);
+                $("#idlblFileRowCount_" + id + "-" + groupId).text($("#idFileRowCount_" + id + "-" + groupId).val());
+                $("#idlblClaimsProcessedCount_" + id + "-" + groupId).text($("#idClaimsProcessedCount_" + id + "-" + groupId).val());
+                $("#idlblReversedClaimCount_" + id + "-" + groupId).text($("#idReversedClaimCount_" + id + "-" + groupId).val());
+                $("#idlblProcessingFee_" + id + "-" + groupId).text("$"+$("#idProcessingFee_" + id + "-" + groupId).val());
+
+                var GrandCount = $("#idlblGrpCount").text();
+                GrandCount = GrandCount.replace(/,\s*$/, "");
+                var res = GrandCount.split(",");
+                //alert(res.length);
+                var GrandClaimProcessedSum = 0;
+                var GrandClaimTotalSubSum = 0;
+                var GrandClaimReversedSum = 0;
+                var GrandAmountDueSum = 0.00;
+                for (var j = 0; j < res.length; j++) {
+
+                    //var test = $("#idlblTotalClaimProcessed_" + res[j]).text();
+                    //alert(test);
+                    GrandClaimProcessedSum += parseInt($("#idlblTotalClaimProcessed_" + res[j]).text());
+                    GrandClaimTotalSubSum += parseInt($("#idlblTotalClaimsSubmitted_" + res[j]).text());
+                    GrandClaimReversedSum += parseInt($("#idlblTotalReversedClaim_" + res[j]).text());
+                    GrandAmountDueSum += parseFloat($("#idlblTotalAmountDue_" + res[j]).text().replace("$", ""));
+
+                }
+                $("#idlblGrandTotalClaimSubmitted").text(GrandClaimTotalSubSum);
+                $("#idlblGrandTotalClaimProcessed").text(GrandClaimProcessedSum);
+                $("#idlblGrandTotalClaimReversed").text(GrandClaimReversedSum);
+                $("#idlblGrandTotalAmountDue").text("$" + GrandAmountDueSum.toFixed(2));
+            }
+        } else {
+            if ($("#idClaimsProcessedCount_" + id + "-" + groupId).val().length == 0 || $("#idReversedClaimCount_" + id + "-" + groupId).val().length == 0 || $("#idProcessingFee_" + id + "-" + groupId).val().length == 0) {
+
+                $("#submitForm").prop('disabled', true);
+                $("#divalert").show();
+
+            }
+
+
+        }
+
+    }
+
+
+     $('#submitForm').click(function () {
+
+         var companyViewModel = {
+             CompanyName: $("#idcompanyName").val(), Address: $("#idCompanyAddress").val(),
+             City: $("#idCompanyCity").val(), Phone: $("#idCompanyPhone").val()
+         }
+
+         var clientInvoiceViewModel = [];
+         var rowscount = $("#idlbltotalrows").text();
+         for (var i = 0; i < rowscount; i++) {
+             clientInvoiceViewModel.push({
+                 GroupId: $(".lblGroupIdClass_"+ i).text(),
+                 FileRowCount: $(".filecountlabelModel_" + i).val(),
+                 CreatedDate: $(".lblCreatedDateClass_"+ i).text(),
+                 ClaimsProcessedCount: $(".lblClaimsProcessedClass_" + i).text(),
+                 ReversedClaimCount: $(".lblClaimsReversedClass_" + i).text(),
+                 ProcessingFee: parseFloat($(".lblProcessingFeeClass_" + i).text().replace("$","")),
+                 AmountDue: parseFloat($(".lblAmountDueClass_" + i).text().replace("$", ""))
+             })
+         }
+
+         var setupinvoiceViewmodel = {
+             InvoiceNo: $("#idGenerateDate").val(), CompanyDetails: companyViewModel, ClientInvoiceDetails: clientInvoiceViewModel,
+             InvoiceGenerateDate: $("#idInvoiceGenerateDate").val(), BillingPeriod: $("#idBillingPeriod").val(),
+             DueDate: $("#idDueDate").val(), LegalName: $("#idName").val(),
+             ServiceLocationAddress: $("#idClientAddress").val(), ContactPersonPhone: $("#idClientPhone").val(),
+             ClientId: $("#idhiddClientId").val(),
+             Month: $("#idhiddMonth").val(),
+             Year: $("#idhiddYear").val(),
+             InvoiceType: $("#idhiddInvoiceType").val()
+         }
+
+         $(".pro").css("text-align","right");
+         $(".showLabels").show();
+         $(".hideInputBox").hide();
+         $(".dollar").removeClass("input-euro left");
+
+        var html = $('#idReport').html();
+
+
+        $.ajax({
+            url: '@Url.Action("ClientInvoiceDetails", "Invoice")',
+            //dataType: "html",
+            data: { clientSetupInvoiceDetailViewModel: setupinvoiceViewmodel,html: html },
+            type: "post",
+            cache: false,
+            beforeSend: function () {
+                // Show image container
+                $(".loading").show();
+            },
+            success: function (data) {
+                alert("Invoice Created Successfully");
+
+                  window.close();
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+
+            },
+            complete: function (data) {
+                // Hide image container
+                $(".loading").hide();
+
+            }
+        });
+         $(".pro").css("text-align", "left");
+         $(".showLabels").hide();
+         $(".hideInputBox").show();
+
+    });
+
+</script>
+
+
+
+
+

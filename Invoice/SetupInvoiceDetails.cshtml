@@ -1,0 +1,462 @@
+﻿@*@{
+        ViewData["Title"] = "SetupInvoiceDetails";
+    }
+
+    <h2>SetupInvoiceDetails</h2>*@
+
+@model Vativo.UI.ViewModels.ClientSetupInvoiceDetailViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Setup Invoice Detail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<link href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+    rel="stylesheet">*@
+<script src="~/js/jquery.dataTables.min.js"></script>
+
+<h3 class="client-hdg">Invoice for Setup</h3>
+
+<form method="post" id="form">
+    <div id="idReport">
+        @*<img src="~/images/animated-overlay.gif" id="gif" style="display: block; margin: 0 auto; width: 100px; visibility: hidden;">*@
+        <input id="idhiddClientId" asp-for="ClientId" type="hidden" value="@Model.ClientId" />
+        <input id="idhiddMonth" asp-for="Month" type="hidden" value="@Model.Month" />
+        <input id="idhiddYear" asp-for="Year" type="hidden" value="@Model.Year" />
+        <input id="idhiddInvoiceType" asp-for="InvoiceType" type="hidden" value="@Model.InvoiceType" />
+        <div id="divalert" class="alert alert-danger" role="alert" hidden>
+            <strong>Please enter a numeric value.</strong>
+        </div>
+        <div class="loading" style="display:none">Loading&#8230;</div>
+        <table style="max-width: 1140px; width: 100%; margin: 5px auto 0;">
+            <tr>
+                <td>
+                    <table id="example" class="display nowrap" style="width:100%; margin-top: 5px;" cellspacing="0" cellpadding="0">
+                        <thead style="display: table-caption; padding-right: 15px; padding-bottom:15px;">
+                            <tr class="headerLogo">
+                                <td colspan="4">
+                                    <img src="https://vativorx.net/images/VativoRxLogo.fw_.png" alt="" />
+                                </td>
+                            </tr>
+                            <tr></tr>
+                            <tr></tr>
+                            <tr></tr>
+                        </thead>
+                        <tr>
+                            <td style="padding-top:8px; padding-bottom:8px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.CompanyName</label>
+                                <input id="idcompanyName" asp-for="CompanyDetails.CompanyName" type="hidden" value="@Model.CompanyDetails.CompanyName" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:8px; padding-bottom:8px; padding-left: 8px; padding-right: 8px;"><b>Invoice #</b></td>
+                            <td style="padding-top:8px; padding-bottom:8px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.InvoiceNo</label>
+                                <input id="idGenerateDate" asp-for="InvoiceNo" type="hidden" value="@Model.InvoiceNo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.Address</label>
+                                <input id="idCompanyAddress" asp-for="CompanyDetails.Address" type="hidden" value="@Model.CompanyDetails.Address" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Invoice Date:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.InvoiceGenerateDate</label>
+                                <input id="idInvoiceGenerateDate" asp-for="InvoiceGenerateDate" type="hidden" value="@Model.InvoiceGenerateDate" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.CompanyDetails.City,@Model.CompanyDetails.pincode</label>
+                                <input id="idCompanyCity" asp-for="CompanyDetails.City" type="hidden" value="@Model.CompanyDetails.City,@Model.CompanyDetails.pincode" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Billing Period:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.BillingPeriod</label>
+                                <input id="idBillingPeriod" asp-for="BillingPeriod" type="hidden" value="@Model.BillingPeriod" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">Phone&nbsp;&nbsp;@Model.CompanyDetails.Phone</label>
+                                <input id="idCompanyPhone" asp-for="CompanyDetails.Phone" type="hidden" value="@Model.CompanyDetails.Phone" />
+                            </td>
+                            <td></td>
+                            <td align="right" style="padding-top:6px; padding-bottom:6px; padding-left: 8px; padding-right: 8px;"><b>Due Date:</b></td>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 25px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.DueDate</label>
+                                <input id="idDueDate" asp-for="DueDate" type="hidden" value="@Model.DueDate" />
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        <tr>
+                            <td style="padding-top:26px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;"><b>Bill To:</b></td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.LegalName</label>
+                                <input id="idName" asp-for="LegalName" type="hidden" value="@Model.LegalName" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">@Model.ServiceLocationAddress</label>
+                                <input id="idClientAddress" asp-for="ServiceLocationAddress" type="hidden" value="@Model.ServiceLocationAddress" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-top:6px; padding-bottom:6px; padding-left: 16px; padding-right: 8px;">
+                                <label style="margin-bottom:0px;">Phone &nbsp;@Model.ContactPersonPhone</label>
+                                <input id="idClientPhone" asp-for="ContactPersonPhone" type="hidden" value="@Model.ContactPersonPhone" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+        <table class="table" style="margin-top: 40px;  border: 2px solid #325490;" width="100%" cellspacing="0" cellpadding="0">
+            <tbody>
+                <tr style="background: #075b73;">
+                    <td style="border-right: 2px solid #033c4c; color: #fff; padding-left:8px; padding-top:8px; padding-bottom:8px; font-weight:bold;">Item</td>
+             
+                    <td style="border-right: 2px solid #033c4c; color: #fff; padding-left:8px; padding-top:8px; padding-bottom:8px; font-weight:bold;">Quantity</td>
+                 
+                    <td style="border-right: 2px solid #033c4c; color: #fff; padding-left:8px; padding-top:8px; padding-bottom:8px; font-weight:bold;">Unit Price</td>
+                   
+                    <td style="padding-top:8px; padding-left:8px; color: #fff; padding-bottom:8px; font-weight:bold;">Amount Due</td>
+                 
+                </tr>
+
+                <tr>
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px; align-content:center;">Account Setup Fee</td>
+               
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px; text-align:right;padding-right:8px;">
+                        <input id="idSetupQuantity" asp-for="AccountSetupQuantity" class=" form-control allownumeric account hideInputBox" maxlength="20" min="0" />
+                        <label id="idlblAccountSetupQuantity" hidden>@Model.AccountSetupQuantity</label>
+                        @*<input id="idSetupQuantityhidden" asp-for="AccountSetupQuantity" type="hidden" />*@
+                    </td>
+               
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;padding-right:8px;" class="price">
+                        <span class="input-euro left dollar">
+                            <input id="idSetupUnitPrice" asp-for="AccountSetupUnitPrice" class="form-control allownumericwithdecimal account hideInputBox " maxlength="20" />
+                        </span>
+                        <label id="idlblAccountSetupUnitPrice" hidden>$@Model.AccountSetupUnitPrice</label>
+                    </td>
+                    
+                    <td style="border-top: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                        <input id="idSetUpFeeAmount" type="hidden" asp-for="SetUpFeeAmountDue" class="form-control allownumericwithdecimal" maxlength="20" />
+                        <label id="idlblSetUpFeeAmountDue">$@Model.SetUpFeeAmountDue</label>
+                    </td>
+           
+                </tr>
+
+                <tr>
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px; align-content:center;padding-right:8px;">Additional User Fee</td>
+                
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                        <input id="idAdditionalUserFeeQuantity" asp-for="AdditionalUserFeeQuantity" class="form-control allownumeric user hideInputBox" maxlength="20" min="0" />
+                        <label id="idlblAdditionalUserFeeQuantity" hidden>@Model.AdditionalUserFeeQuantity</label>
+                    </td>
+                
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;padding-right:8px;" class="price">
+                        <span class="input-euro left dollar">
+                            <input id="idAdditionalUserFeeUnitPrice" asp-for="AdditionalUserFeeUnitPrice" class="form-control allownumericwithdecimal user hideInputBox" maxlength="20" />
+                        </span>
+                        <label id="idlblAdditionalUserFeeUnitPrice" hidden>$@Model.AdditionalUserFeeUnitPrice</label>
+                    </td>
+                   
+                    <td style="border-top: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                        <input id="idUserFeeAmount" type="hidden" asp-for="UserFeeAmountDue" class="form-control allownumericwithdecimal" maxlength="20" />
+                        <label id="idlblUserFeeAmountDue">$@Model.UserFeeAmountDue</label>
+                    </td>
+                  
+                </tr>
+
+                <tr>
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;padding-right:8px;width:35%;" >
+                        Miscellaneous:- <br/>
+                        <textarea id="idMaintenanceDescriptionQty" asp-for="MaintenanceDescriptionQty" class="form-control description"></textarea>
+                        <label style="text-align:left; width:100%;word-wrap: normal; word-break: break-all;" id="idlblMaintenanceDescriptionQty" hidden>@Model.MaintenanceDescriptionQty</label>
+                    </td>
+                  
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                        <input id="idMiscelaneousQuantity" asp-for="MiscelaneousQuantity" class="form-control allownumeric miscelaneous hideInputBox" maxlength="20" min="0" />
+                        <label id="idlblMiscelaneousQuantity" hidden>@Model.MiscelaneousQuantity</label>
+                    </td>
+               
+                    <td style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;padding-right:8px;" class="price">
+                        <span class="input-euro left dollar">
+                            <input id="idMiscelaneousUnitPrice" asp-for="MiscelaneousUnitPrice" class="form-control allownumericwithdecimal miscelaneous hideInputBox" maxlength="20" />
+                            <label id="idlblMiscelaneousUnitPrice" hidden>$@Model.MiscelaneousUnitPrice</label>
+                        </span>
+                    </td>
+                  
+                    <td style="border-top: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;text-align:right;padding-right:8px;">
+                        <input id="idMiscelaneousAmount" type="hidden" asp-for="MiscelaneousAmountDue" class="form-control allownumericwithdecimal" maxlength="20" />
+                        <label id="idlblMiscelaneousAmountDue">$@Model.MiscelaneousAmountDue</label>
+                    </td>
+                 
+                </tr>
+
+                <tr>
+                    <td colspan="4" style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="border-top: 2px solid #325490; border-right: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px;font-weight:bold">Total</td>
+
+                    <td style="border-top: 2px solid #325490; padding-left:8px; padding-top:8px; padding-bottom:8px; font-weight:bold;text-align:right;padding-right:8px;">
+                        <input id="idTotalAmt" type="hidden" asp-for="TotalAmount" class="form-control allownumericwithdecimal" maxlength="20" />
+                        <label style="font-weight:bold" id="idlblTotalAmount">$@Model.TotalAmount</label>
+                    </td>
+                 
+                </tr>
+
+            </tbody>
+        </table>
+
+    </div>
+    <div class="col-md-6 col-sm-6">
+        <div class="form-group form-hght btnWrapper regBtnWrapper">
+            <input type="button" id="submitForm" value="Save" class="btn btn-primary btn-round hght-reg" />
+            <span>&nbsp;</span>
+        </div>
+    </div>
+
+</form>
+
+<script>
+    $(document).ready(function () {
+        $(".hideInputBox").css("text-align", "right");
+        $("#idSetupUnitPrice").val((Math.round(parseFloat($("#idSetupUnitPrice").val()) * 100) / 100).toFixed(2));
+        $("#idAdditionalUserFeeUnitPrice").val((Math.round(parseFloat($("#idAdditionalUserFeeUnitPrice").val()) * 100) / 100).toFixed(2));
+        $("#idMiscelaneousUnitPrice").val((Math.round(parseFloat($("#idMiscelaneousUnitPrice").val()) * 100) / 100).toFixed(2));
+        $("#idlblTotalAmount").text('$' + (Math.round(parseFloat($("#idTotalAmt").val()) * 100) / 100).toFixed(2))
+        $("#idlblSetUpFeeAmountDue").text("$" + (Math.round(parseFloat($("#idSetUpFeeAmount").val()) * 100) / 100).toFixed(2));
+        $("#idlblUserFeeAmountDue").text("$" + (Math.round(parseFloat($("#idUserFeeAmount").val()) * 100) / 100).toFixed(2));
+        $("#idlblMiscelaneousAmountDue").text("$" + (Math.round(parseFloat($("#idMiscelaneousAmount").val()) * 100) / 100).toFixed(2));
+        $("#idlblAdditionalUserFeeUnitPrice").text("$" + $("#idAdditionalUserFeeUnitPrice").val());
+        $("#idlblMiscelaneousUnitPrice").text("$" + $("#idMiscelaneousUnitPrice").val());
+        $("#idlblAccountSetupUnitPrice").text("$" + $("#idSetupUnitPrice").val());
+    });
+
+    $(".account").blur(function () {
+        if ($("#idSetupUnitPrice").val().length != 0) {
+            $("#idSetupUnitPrice").val((Math.round(parseFloat($("#idSetupUnitPrice").val()) * 100) / 100).toFixed(2));
+        }
+    });
+
+    $(".account").keyup(function () {
+
+        if ($("#idSetupQuantity").val().length != 0 && $("#idSetupUnitPrice").val().length != 0)
+        {
+            $("#submitForm").prop('disabled', false);
+            $("#divalert").hide();
+           
+            var accountsum = parseFloat(parseFloat($("#idSetupQuantity").val()) * parseFloat($("#idSetupUnitPrice").val()));
+            $("#idSetUpFeeAmount").val((Math.round(parseFloat(accountsum) * 100) / 100).toFixed(2));
+
+            var totalsum = parseFloat($("#idSetUpFeeAmount").val()) + parseFloat($("#idUserFeeAmount").val()) + parseFloat($("#idMiscelaneousAmount").val())
+            $("#idTotalAmt").val((Math.round(parseFloat(totalsum) * 100) / 100).toFixed(2))
+            //$("#idSetupUnitPrice").val((Math.round(parseFloat($("#idSetupUnitPrice").val()) * 100) / 100).toFixed(2));
+            $("#idlblAccountSetupQuantity").text($("#idSetupQuantity").val());
+            $("#idlblAccountSetupUnitPrice").text("$" + $("#idSetupUnitPrice").val());
+            $("#idlblSetUpFeeAmountDue").text("$" + $("#idSetUpFeeAmount").val());
+            $("#idlblTotalAmount").text("$"+ $("#idTotalAmt").val());
+        } else {
+            $("#submitForm").prop('disabled', true);
+            $("#divalert").show();
+        }
+    });
+    $(".user").blur(function () {
+        if ($("#idAdditionalUserFeeUnitPrice").length != 0) {
+            $("#idAdditionalUserFeeUnitPrice").val((Math.round(parseFloat($("#idAdditionalUserFeeUnitPrice").val()) * 100) / 100).toFixed(2));
+        }
+       
+    });
+    $(".user").keyup(function () {
+
+        if ($("#idAdditionalUserFeeQuantity").val().length != 0 && $("#idAdditionalUserFeeUnitPrice").length != 0) {
+            $("#divalert").hide();
+            $("#submitForm").prop('disabled', false);
+            //$("#idAdditionalUserFeeUnitPrice").val((Math.round(parseFloat($("#idAdditionalUserFeeUnitPrice").val()) * 100) / 100).toFixed(2));
+            var usersum = parseFloat(parseFloat($("#idAdditionalUserFeeQuantity").val()) * parseFloat($("#idAdditionalUserFeeUnitPrice").val()));
+            $("#idUserFeeAmount").val((Math.round(parseFloat(usersum) * 100) / 100).toFixed(2));
+
+            var totalsum = parseFloat($("#idSetUpFeeAmount").val()) + parseFloat($("#idUserFeeAmount").val()) + parseFloat($("#idMiscelaneousAmount").val())
+            $("#idTotalAmt").val((Math.round(parseFloat(totalsum) * 100) / 100).toFixed(2))
+
+            $("#idlblAdditionalUserFeeQuantity").text($("#idAdditionalUserFeeQuantity").val());
+            $("#idlblAdditionalUserFeeUnitPrice").text("$" + $("#idAdditionalUserFeeUnitPrice").val());
+            $("#idlblUserFeeAmountDue").text("$" + $("#idUserFeeAmount").val());
+            $("#idlblTotalAmount").text("$"+ $("#idTotalAmt").val());
+        } else {
+            $("#submitForm").prop('disabled', true);
+            $("#divalert").show();
+        }
+    });
+
+    $(".miscelaneous").blur(function () {
+        if ($("#idMiscelaneousUnitPrice").val().length != 0) {
+            $("#idMiscelaneousUnitPrice").val((Math.round(parseFloat($("#idMiscelaneousUnitPrice").val()) * 100) / 100).toFixed(2));
+        }
+    });
+    $(".miscelaneous").keyup(function () {
+
+        if ($("#idMiscelaneousQuantity").val().length != 0 && $("#idMiscelaneousUnitPrice").val().length != 0) {
+            $("#divalert").hide();
+            $("#submitForm").prop('disabled', false);
+
+            //$("#idMiscelaneousUnitPrice").val((Math.round(parseFloat($("#idMiscelaneousUnitPrice").val()) * 100) / 100).toFixed(2));
+
+            var usersum = parseFloat(parseFloat($("#idMiscelaneousQuantity").val()) * parseFloat($("#idMiscelaneousUnitPrice").val()));
+            $("#idMiscelaneousAmount").val((Math.round(parseFloat(usersum) * 100) / 100).toFixed(2));
+            var totalsum = parseFloat($("#idSetUpFeeAmount").val()) + parseFloat($("#idUserFeeAmount").val()) + parseFloat($("#idMiscelaneousAmount").val())
+            $("#idTotalAmt").val((Math.round(parseFloat(totalsum) * 100) / 100).toFixed(2))
+
+            $("#idlblMiscelaneousQuantity").text($("#idMiscelaneousQuantity").val());
+            $("#idlblMiscelaneousUnitPrice").text("$" + $("#idMiscelaneousUnitPrice").val());
+            $("#idlblMiscelaneousAmountDue").text("$" + $("#idMiscelaneousAmount").val());
+            $("#idlblTotalAmount").text("$"+$("#idTotalAmt").val());
+        } else {
+            $("#submitForm").prop('disabled', true);
+            $("#divalert").show();
+        }
+    });
+    $(".description").keyup(function () {
+
+        $("#idlblMaintenanceDescriptionQty").text($("#idMaintenanceDescriptionQty").val());
+
+        //$("#idlblmaintenancedescriptionunitprice").text($("#idmaintenancedescriptionunitprice").val());
+    });
+
+
+    $('#submitForm').click(function () {
+
+             var companyViewModel = {
+            CompanyName: $("#idcompanyName").val(), Address: $("#idCompanyAddress").val(),
+            City: $("#idCompanyCity").val(), Phone:$("#idCompanyPhone").val()
+        }
+        var setupinvoiceViewmodel = {
+            InvoiceNo: $("#idGenerateDate").val(), CompanyDetails: companyViewModel,
+            InvoiceGenerateDate: $("#idInvoiceGenerateDate").val(), BillingPeriod: $("#idBillingPeriod").val(),
+            DueDate: $("#idDueDate").val(), LegalName: $("#idName").val(),
+            ServiceLocationAddress: $("#idClientAddress").val(), ContactPersonPhone: $("#idClientPhone").val(),
+            AccountSetupQuantity: $("#idSetupQuantity").val(), AccountSetupUnitPrice: parseFloat($("#idSetupUnitPrice").val()),
+            SetUpFeeAmountDue: parseFloat($("#idSetUpFeeAmount").val()), AdditionalUserFeeQuantity: $("#idAdditionalUserFeeQuantity").val(),
+            AdditionalUserFeeUnitPrice: parseFloat($("#idAdditionalUserFeeUnitPrice").val()), UserFeeAmountDue: parseFloat($("#idUserFeeAmount").val()),
+            MiscelaneousQuantity: $("#idMiscelaneousQuantity").val(),
+            MiscelaneousUnitPrice: parseFloat($("#idMiscelaneousUnitPrice").val()),
+            MiscelaneousAmountDue: parseFloat($("#idMiscelaneousAmount").val()),
+            TotalAmount: parseFloat($("#idTotalAmt").val()),
+            ClientId: $("#idhiddClientId").val(),
+            Month: $("#idhiddMonth").val(),
+            Year: $("#idhiddYear").val(),
+            InvoiceType: $("#idhiddInvoiceType").val(),
+            MaintenanceDescriptionQty: $("#idMaintenanceDescriptionQty").val(),
+
+        }
+        $(".dollar").removeClass("input-euro left");
+        $(".price").css("text-align", "right");
+        $("#idlblAccountSetupQuantity").show();
+        $("#idSetupQuantity").hide();
+
+        $("#idlblAccountSetupUnitPrice").show();
+        $("#idSetupUnitPrice").hide();
+
+        //$("#idlblSetUpFeeAmountDue").show();
+        //$("#idSetUpFeeAmount").hide();
+
+        $("#idlblAdditionalUserFeeQuantity").show();
+        $("#idAdditionalUserFeeQuantity").hide();
+
+        $("#idlblAdditionalUserFeeUnitPrice").show();
+        $("#idAdditionalUserFeeUnitPrice").hide();
+
+        //$("#idlblUserFeeAmountDue").show();
+        //$("#idUserFeeAmount").hide();
+
+        $("#idlblMiscelaneousQuantity").show();
+        $("#idMiscelaneousQuantity").hide();
+
+        $("#idlblMiscelaneousUnitPrice").show();
+        $("#idMiscelaneousUnitPrice").hide();
+
+        $("#idlblMaintenanceDescriptionQty").show();
+        $("#idMaintenanceDescriptionQty").hide();
+
+        //$("#idlblMiscelaneousAmountDue").show();
+        //$("#idMiscelaneousAmount").hide();
+
+        //$("#idlblTotalAmount").show();
+        //$("#idTotalAmt").hide();
+
+        var html = $('#idReport').html();
+        console.log(html);
+
+        $.ajax({
+            url: '@Url.Action("SetupInvoiceDetails","Invoice")',
+            //dataType: "html",
+            data: { clientSetupInvoiceDetailViewModel: setupinvoiceViewmodel, html: html },
+            type: "post",
+            cache: false,
+            beforeSend: function () {
+                // Show image container
+                $(".loading").show();
+            },
+            success: function (data) {
+                alert("Invoice Created Successfully");
+                window.close();
+                           },
+            error: function (xhr, ajaxOptions, thrownError) {
+               //$('#lblCommentsNotification').text("Error encountered while saving the comments.");
+            },
+            complete: function (data) {
+                // Hide image container
+                $(".loading").hide();
+            }
+        });
+        $(".price").css("text-align", "left");
+        $("#idlblAccountSetupQuantity").hide();
+        $("#idSetupQuantity").show();
+
+        $("#idlblAccountSetupUnitPrice").hide();
+        $("#idSetupUnitPrice").show();
+
+        //$("#idlblSetUpFeeAmountDue").hide();
+        //$("#idSetUpFeeAmount").show();
+
+        $("#idlblAdditionalUserFeeQuantity").hide();
+        $("#idAdditionalUserFeeQuantity").show();
+
+        $("#idlblAdditionalUserFeeUnitPrice").hide();
+        $("#idAdditionalUserFeeUnitPrice").show();
+
+        //$("#idlblUserFeeAmountDue").hide();
+        //$("#idUserFeeAmount").show();
+
+        $("#idlblMiscelaneousQuantity").hide();
+        $("#idMiscelaneousQuantity").show();
+
+        $("#idlblMiscelaneousUnitPrice").hide();
+        $("#idMiscelaneousUnitPrice").show();
+
+        $("#idlblMaintenanceDescriptionQty").hide();
+        $("#idMaintenanceDescriptionQty").show();
+
+        //$("#idlblMiscelaneousAmountDue").hide();
+        //$("#idMiscelaneousAmount").show();
+
+        //$("#idlblTotalAmount").hide();
+        //$("#idTotalAmt").show();
+    });
+
+    //$('#submitForm').submit(function () {
+    //    $('#gif').show();
+    //    return true;
+    //});
+</script>
+
+
+
+

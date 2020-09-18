@@ -1,0 +1,320 @@
+﻿@model Vativo.UI.ViewModels.FinancialReportViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Financial Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/js/jquery.dataTables.min.js"></script>
+
+<h3 class="client-hdg">Financial Report</h3>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>Date</label><span class="required Validation-Color">*</span>
+                    <select asp-for="DateId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.DateComparisonList)"></select>
+                    <span asp-validation-for="DateId" class="Validation-Color"></span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>From Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSFromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>To Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="toDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght btnWrapper" style="float:left;padding-bottom:20px;">
+
+                    <input type="button"id="submitForm" value="Get Report" class="btn btn-primary btn-round hght-reg" />
+                    <div id="ExcelReport" hidden>
+                        <a id="download" class="btn btn-primary btn-round hght-reg" onclick="GetExcel()">Export Excel</a>
+                    </div>
+                    <div id="PdfReport" hidden>
+                        <a class="btn btn-primary btn-round hght-reg" onclick="GetPDF()">Export PDF</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<form id="TheForm" method="post" action="/report/DownloadPDF" target="TheWindow">
+    <input type="hidden" id="html" name="html" value="" />
+    <input type="hidden" id="fileName" name="fileName" value="" />
+</form>
+
+<form id="TheFormExcel" method="get" action="/report/ClientFinancialReportDownload" target="TheWindow">
+    <input type="hidden" id="formfromDate" name="fromDate" value="" />
+    <input type="hidden" id="formtodate" name="todate" value="" />
+    <input type="hidden" id="formdateId" name="dateId" value="" />
+    @*<input type="hidden" id="formSubtodate" name="Subtodate" value="" />*@
+</form>
+@*<div style="text-align:center" class="alert alert-danger" id="idNoResult" hidden>
+        <label class="Validation-Color">No Record Found</label>
+    </div>*@
+
+<div id="idReport">
+    <table style="width: 100%; margin: 5px auto 0;" id="idHeaderTable" hidden cellspacing="0" cellpadding="0">
+
+        <tr>
+            <td>
+                <table id="example" class="display nowrap" style="width:100%; margin-top: 5px;" cellspacing="0" cellpadding="0">
+                    <thead style="display: table-caption; padding-left: 15px; padding-right: 15px;">
+                        <tr class="headerLogo">
+                            <td colspan="4">
+                                <img src="https://vativorx.net/images/VativoRxLogo.fw_.png" alt="" />
+                            </td>
+                        </tr>
+                        <tr></tr>
+                        <tr></tr>
+                        <tr></tr>
+                    </thead>
+                    <div style="text-align:right;" id="idGenerateDate" hidden>
+                        <div>
+                            <strong><label>@Model.GenerateDate</label></strong>
+                        </div>
+                    </div>
+                    <tbody align="center" style="margin: 20px auto;">
+                        <tr>
+                            <td></td>
+                            <td colspan="1">
+                                <h3 style="text-transform: uppercase;">Claim Data Analysis and rebate summary</h3>
+                                <h4 style="text-transform: uppercase; color:#286090; font-size:26px;">Confidential</h4>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table clientfinancTable" width="100%" cellspacing="0" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;"> <strong> <label style="font-weight:400;" id="idDate"></label></strong></td>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;"><label id="idDateofServiceRange"></label></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;">Total Number of Claims Processed:</td>
+                            <td style=" border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;"><label id="idClaimsProcessed"></label></td>
+                        </tr>
+
+                        @*<tr>
+                            <td align="center" style="border-top: 2px solid #325490;">&nbsp;</td>
+                            <td align="center" style="border-top: 2px solid #325490;">&nbsp;</td>
+                        </tr>*@
+
+                        <tr>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;">Client Name:</td>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;"><label id="idName"></label></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;">Client NPI(s):</td>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;" ><label id="idNPI"></label></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;">Client GroupID(s):</td>
+                            <td style="border-top: 2px solid #325490; padding-top:8px; padding-bottom:8px;text-align:center;"><label id="idGroupID"></label></td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+                <!--HEADER TABLE FIRST MIDDLE CONTENT AREA END-->
+
+                <table class="table" style="margin-top: 40px;  border: 2px solid #325490;" width="100%" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <th style="border-right: 2px solid #325490; padding-top:15px; padding-bottom:15px; border-bottom: 2px solid #325490;">&nbsp;</th>
+                            <th style="border-right: 2px solid #325490; padding-top:15px; padding-bottom:15px; border-bottom: 2px solid #325490;">Rebate Rate per Claim</th>
+                            <th style="border-right: 2px solid #325490; padding-top:15px; padding-bottom:15px; border-bottom: 2px solid #325490;">Total Number of Rebate Eligible Claims</th>
+                            <th style="border-bottom: 2px solid #325490; padding-top:15px; padding-bottom:15px;">Total Rebate Amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px; border-bottom: 2px solid #325490; font-weight:700;">Rebate Eligible Brands</td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px; border-bottom: 2px solid #325490;text-align:right"><label id="idRebateBrand"></label></td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px; border-bottom: 2px solid #325490;text-align:right"><label id="idBrandClaim"></label></td>
+                            <td style="border-bottom: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px;text-align:right"><label id="idBrandTotalAmount"></label></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px; border-bottom: 2px solid #325490; font-weight:700;">Rebate Eligible Specialty Drugs</td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px; border-bottom: 2px solid #325490;text-align:right"><label id="idRebateSpecialty"></label></td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px; border-bottom: 2px solid #325490;text-align:right"><label id="idSpecialtyClaim"></label></td>
+                            <td style="border-bottom: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px;text-align:right"><label id="idRebateTotalAmount"></label></td>
+                        </tr>
+
+                        <tr>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px; font-weight: bold;">Grand Total</td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px;text-align:right">@*<label id="idRateTotal"></label>*@</td>
+                            <td style="border-right: 2px solid #325490; padding-top:8px; padding-bottom:8px;padding-right:8px;text-align:right"><label id="idClaimTotal"></label></td>
+                            <td style="font-weight: bold;text-align:right;padding-right:8px;"><label id="idAmountTotal"></label></td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+                <table style="margin: 20px auto;" cellspacing="0" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <td colspan="4">
+                                <p class="">
+                                    This document, including any associated documents, may contain information that is confidential and may be privileged and exempt from disclosure under applicable law. It is intended solely for the use of the individual or entity for which it is created. If you are not the intended recipient of this information, you are hereby notified that any use, disclosure, dissemination, or copying of this document is strictly prohibited. If you have received this document in error, please notify the distributor. Thank you for your cooperation.
+                                </p>
+                            </td>
+                        </tr>
+</table>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        $("#DOSFromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#DOSToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#DOSToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#DOSFromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+        $("#SUBFromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#SUBToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#SUBToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#SUBFromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+
+    });
+
+
+    $("#submitForm").click(function () {
+        if ($("#ClientId option:selected").val() != "") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ClientFinancialReport", "Report")',
+                dataType: 'json',
+                data: { FromDate: $("#DOSFromDate").val(), ToDate: $("#DOSToDate").val(), DateId: $("#DateId option:selected").val() },
+                success: function (Result) {
+                    if (Result == "" || Result == null) {
+                        $("#idHeaderTable").hide();
+                        $("#idNoResult").show();
+                        $("#ExcelReport").hide();
+                        $("#PdfReport").hide();
+                    } else {
+
+                        $("#idHeaderTable").show();
+                        $("#idNoResult").hide();
+                        $("#idDate").text($("#DateId option:selected").text());
+                        $("#idDateofServiceRange").text($("#DOSFromDate").val() + " To " + $("#DOSToDate").val());
+                        $("#idSubmittedDateRange").text($("#SUBFromDate").val() + " To " + $("#SUBToDate").val());
+                        $("#idClaimsProcessed").text(Result[0].totalNumberOfClaimsProcessed);
+                        $("#idName").text(Result[0].clientName);
+                        $("#idNPI").text(Result[0].clientNPIs);
+                        $("#idGroupID").text(Result[0].groupIds);
+                        $("#idRebateBrand").text('$'+ (Result[0].rebateBrandRate));
+                        $("#idBrandClaim").text(Result[0].totalBrandClaims);
+                        $("#idBrandTotalAmount").text('$'+(parseFloat(Result[0].rebateBrandRate) * parseFloat(Result[0].totalBrandClaims)));
+                        $("#idRebateSpecialty").text('$' + (Result[0].rebateSpecialtyRate));
+                        $("#idSpecialtyClaim").text(Result[0].totalSpecialtyClaims);
+                        $("#idRebateTotalAmount").text('$'+(parseFloat(Result[0].rebateSpecialtyRate) * parseFloat(Result[0].totalSpecialtyClaims)));
+                        $("#idRateTotal").text(parseFloat(Result[0].rebateBrandRate) + parseFloat(Result[0].rebateSpecialtyRate));
+                        $("#idClaimTotal").text(parseFloat(Result[0].totalBrandClaims) + parseFloat(Result[0].totalSpecialtyClaims));
+                        $("#idAmountTotal").text('$' + ((parseFloat(Result[0].rebateBrandRate) * parseFloat(Result[0].totalBrandClaims)) + (parseFloat(Result[0].rebateSpecialtyRate) * parseFloat(Result[0].totalSpecialtyClaims))));
+                        if (Result[0].totalNumberOfClaimsProcessed != 0) {
+                            $("#ExcelReport").show();
+                            $("#PdfReport").show();
+                        } else {
+                            $("#ExcelReport").hide();
+                            $("#PdfReport").hide();
+                        }
+                    }
+                },
+                error: function (Result) {
+                    alert("Error");
+                }
+            });
+        } else {
+            alert("Please select clients");
+        }
+    });
+
+
+    function GetPDF() {
+        $("#idGenerateDate").show();
+        var html = $('#idReport').html();
+        document.getElementById('html').value = html;
+        document.getElementById('fileName').value = $("#idName").text() + "_ClientFinancialReport.pdf";
+        console.log(html);
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheForm').submit();
+        $("#idGenerateDate").hide();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);
+    }
+
+
+    function GetExcel() {
+        $("#formfromDate").val($("#DOSFromDate").val());
+        $("#formtodate").val($("#DOSToDate").val());
+        $("#formdateId").val($("#DateId option:selected").val());
+        //$("#formSubtodate").val($("#SUBToDate").val());
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheFormExcel').submit();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);
+    }
+
+    //$("#download").click(function () {
+    //    //window.open('data:application/vnd.ms-excel,' + encodeURIComponent($('div[id$=idReport]').html()));
+    //    //e.preventDefault();
+    //    //});
+    //    var postfix = $("#idName").text()+" "+"Financial Report";
+    //    //creating a temporary HTML link element (they support setting file names)
+    //    let file = new Blob([$('#idReport').html()], { type: "application/vnd.ms-excel" });
+
+    //    let url = URL.createObjectURL(file);
+
+    //    let a = $("<a />", {
+    //        href: url,
+    //        download: postfix + ".xls"
+    //    })
+    //        .appendTo("body")
+    //        .get(0)
+    //        .click();
+    //    e.preventDefault();
+    //});
+</script>

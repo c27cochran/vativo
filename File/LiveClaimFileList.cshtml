@@ -1,0 +1,151 @@
+﻿@model Vativo.UI.ViewModels.ClaimRequestFileViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewBag.Title = ":: VativoRx :: Claim List";
+}
+
+<form method="post" class="postMar">
+    <section>
+        <div class="container">
+            <div class="@ViewBag.cssClass" role="alert">
+                <strong>@ViewBag.message</strong>
+            </div>
+        </div>
+        <div class="">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Live Claim File List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Upload File", "LiveClaimFile", "file", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblFile" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th class="thFirst">Serial No.</th>
+                                @*<th>Submission Id</th>*@
+                                <th>Client Name</th>
+                                <th>Uploaded Date</th>
+                                <th>Last Modified By</th>
+                                <th>Last Modified Date</th>
+                                <th>No. of Claims</th>
+                                <th class="text-center">File</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.FileList)
+                                {
+                                    <tr>
+                                        <td>
+                                            <label>@i</label>
+                                        </td>
+                                        @*<td>
+                                            <label asp-for="ClaimRequestId">@item.ClaimRequestId</label>
+                                        </td>*@
+                                        <td>
+                                            <label asp-for="CreatedBy">@item.ClientName</label>
+                                        </td>
+                                        <td>
+                                            <label asp-for="CreatedOn">@item.CreatedOn</label>
+                                        </td>
+                                        <td>
+                                            <label asp-for="ModifiedBy">@item.ModifiedBy</label>
+                                        </td>
+                                        <td>
+                                            <label asp-for="ModifiedOn">@item.ModifiedOn</label>
+                                        </td>
+
+                                        <td>
+                                            <label asp-for="FileRowCount">@item.FileRowCount</label>
+                                        </td>
+                                        <td>
+                                            <a id="download" href="@Url.Action("FileDownload", "file",new { ClaimRequestId = item.UniqueClaimRequestId,FileType = "LiveClaim",ClaimType="Live" })">Download</a>
+                                            <span>(@item.FileRowCount)</span>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+
+                </div>
+            </div>
+
+            <!--Model Popup Start-->
+            <div class="modal fade" tabindex="-1" id="loginModal"
+                 data-keyboard="false" data-backdrop="static">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <a class="close" data-dismiss="modal">Close</a>
+                            @*<button type="button" class="close" data-dismiss="modal">
+                                    ×
+                                </button>*@
+                        </div>
+
+                        <div class="modal-body">
+                            <div id="fileHistory">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Model Popup End-->
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblFile').DataTable({
+            "bSort": true, "scrollX": true, "pagingType": "input", "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]
+        });
+    });
+
+    $(document).ready(function () {
+        $("#btnHideModal").click(function () {
+            $("#loginModal").modal('hide');
+        });
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+            var url = window.location.href;
+            var query = url.split("?")[0];
+            window.location.href = query;
+        });
+    }, 4000);
+
+    function loadPartialView(id) {
+        $.ajax({
+            type: "GET",
+            url: "FileHistory",
+            data: { ClaimRequestId: id },
+            dataType: "html",
+            success: function (response) {
+                $('#fileHistory').html(response);
+                $("#loginModal").modal('show');
+                //$("#fileHistory").dialog("open");
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+    }
+</script>

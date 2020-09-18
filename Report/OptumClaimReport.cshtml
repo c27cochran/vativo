@@ -1,0 +1,190 @@
+﻿
+
+@model Vativo.UI.ViewModels.OptumClaimReportViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Optum Correction File";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <h3 class="client-hdg">Optum Correction File</h3>
+<div class="@ViewBag.cssClass" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<form method="post" id="form" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-12">
+            @*<div class="col-md-6 col-sm-6">
+                    <div class="form-group form-hght">
+                        <label>NPI</label><span class="required Validation-Color">*</span>
+                        <label>(Use comma(,) for multiple values)</label>
+                        <input asp-for="Npi" class="form-control" onkeypress="return isNumberKey(event)" placeholder="NPI" onblur="GetNPIDetails()" />
+                        <input asp-for="Npi" type="hidden" />
+                        <span asp-validation-for="Npi" class="Validation-Color"></span>
+                    </div>
+                </div>*@
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <input asp-for="UniqueOptumClaimId" type="hidden" />
+                    <label>Legal Name</label><span class="required Validation-Color">*</span>
+                    <input asp-for="LegalName" placeholder="Legal Name" class="form-control" maxlength="50" onblur="GetLegalNameDetail()" />
+                    <span asp-validation-for="LegalName" class="Validation-Color"></span>
+                </div>
+            </div>
+
+            @*<div class="col-md-6 col-sm-6" id="ClientsLegal">
+                    <div class="form-group form-hght">
+                        <input asp-for="UniqueOptumClaimId" type="hidden" />
+                        <label>Legal Name</label><span class="required Validation-Color">*</span>
+                        <select asp-for="LegalName" class="form-control" asp-items="@(new SelectList(ViewBag.ClientsLegalNameList, "Value", "Text"))">
+                            <option value="">Select Legal Name</option>
+                        </select>
+                        <span asp-validation-for="LegalName" class="Validation-Color"></span>
+                    </div>
+                </div>*@
+
+
+
+            <div class="col-md-6 col-sm-6">
+                <div class="chooseBtn">
+                    <input type="file" id="uploadFile" name="files" />
+                    <span id="lblError" style="color: red;"></span>
+                </div>
+                You can only upload csv file.
+            </div>
+            <div class="col-md-12 col-sm-6">
+                <div class="form-group form-hght btnWrapper">
+                    @if (@ViewBag.Status == "Update")
+                    {
+                        <input type="submit" value="Update" class="btn btn-primary btn-round hght-reg" />
+                    }
+                    else
+                    {
+                        <input type="submit" id="submitForm" value="Upload" class="btn btn-primary btn-round hght-reg" />
+                    }
+                </div>
+
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                <input asp-for="OptumFilePath" type="hidden" />
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+
+    var d = new Date($.now());
+    var today = d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear() + "_" + d.getHours() + "_" + d.getMinutes() + "_" + d.getSeconds() + "_" + d.getMilliseconds();
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+    $(document).ready(function () {
+
+        $('#submitForm').on('click', function () {
+            var files = $('#uploadFile').prop("files");
+            var fdata = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                fdata.append("files", files[i]);
+            }
+            if (files.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Index?handler=Upload",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("XSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    data: fdata,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        alert('File Uploaded Successfully.')
+                    }
+                });
+            }
+            else {
+                alert('Please select a file.')
+            }
+        })
+    });
+
+   
+
+    function GetLegalNameDetail() {
+        var LegalName = $("#LegalName").val();
+        if (LegalName != "") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetLegalNameDetail", "Report")',
+                dataType: 'json',
+                data: { Name: LegalName },
+                // Get Groupid List
+                success: function (Result) {
+                    if (Result != null || Result == "") {
+                        if ($("#NPI").val()=="") {
+                            alert("Legal Name is already associated with  another NPI.")
+                            $("#LegalName").val("");
+                        }
+
+                    }
+                },
+                error: function (Result) {
+                    alert("Error");
+                }
+            });
+        }
+
+    };
+
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 44
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    };
+
+    function ValidateExtension() {
+        //var allowedFiles = [".txt", ".xls", ".xlsx", ".csv"];
+        var allowedFiles = [".csv"];
+        var fileUpload = document.getElementById("uploadFile");
+        alert(fileUpload);
+        var lblError = document.getElementById("lblError");
+        var regex = new RegExp("([a-zA-Z0-9\s_\\.\-:])+(" + allowedFiles.join('|') + ")$");
+        if (!regex.test(fileUpload.value.toLowerCase())) {
+            lblError.innerHTML = "Please upload files having <b>" + allowedFiles.join(', ') + "</b> extension only.";
+            return false;
+        }
+        lblError.innerHTML = "";
+        return true;
+    };
+
+    @*$(function () {
+        $("#LegalName").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("LegalNameAutoComplete","Report")',
+                    type: "POST",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.term, value: item.value }
+                        }));
+                    },
+                });
+            },
+            delay: 0,
+            messages: {
+                noResults: "",
+                results: function (resultsCount) { }
+                //results: ""
+            },
+        });
+    });*@
+</script>
+

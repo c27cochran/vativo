@@ -1,0 +1,476 @@
+﻿@model Vativo.UI.ViewModels.RegistrationViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/js/Chart.js"></script>
+<script src="~/js/Chart.extension.js"></script>
+<div class="@ViewBag.cssClass" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<div class="loading" style="display:none">Loading&#8230;</div>
+<div class="row">
+    @{
+
+        <div class="row dashboard-container">
+            @if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.CLIENT_ADMIN ||
+(@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.STANDARD_USER))
+            {
+
+                <div class="chart-wrapper">
+                    <h4>Welcome to VRx Connect Client Portal </h4>
+                    <p id="iddescription">
+                        Our VativoRx Team is always available to answer questions, resolve issues, and help you stay informed.
+                    </p>
+                    <p>
+                        We strive to provide excellent customer services – <a class="dropdown-item" href="@Url.Action("SupportQuery", "SupportPage")">let us know how we can help.</a>
+                    </p>
+                </div>
+
+                <div class="col-lg-8 col-sm-12 col-sm-12" id="idClientClaimChart">
+                    <div class="inner-chart-wrapper">
+
+                        <canvas id="ClientClaimChart"></canvas>
+
+                    </div>
+                </div>
+            }
+            else if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN ||
+    (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER))
+            {
+                <div class="chart-wrapper">
+                    <h4>Welcome to VRx Connect Portal </h4>
+
+                </div>
+
+                <div class="col-lg-8 col-sm-12 col-sm-12" id="idAdminClaimChart">
+                    <div class="inner-chart-wrapper">
+
+                        <canvas id="AdminClaimChart"></canvas>
+
+                    </div>
+                </div>
+
+            }
+
+            @if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.CLIENT_ADMIN ||
+(@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.STANDARD_USER))
+            {
+                <div class="col-lg-4 col-sm-12" id="idQuickAccess">
+                    <div class="inner-right-sec">
+                        <label> Quick Access</label>
+                        <br />
+                        <ul>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("ClaimFileReportList", "Report")">Claim Detailed Report</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("filedetails", "file")">Submitted File</a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="@Url.Action("changepassword", "user")">Change Password</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+            }
+            else if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN ||
+    (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER))
+            {
+                <div class="col-lg-4 col-sm-12" id="idQuickAccess">
+                    <div class="form-group form-hght">
+                        <label>Client</label><span class="required Validation-Color">*</span>
+                        <select asp-for="ClientId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientlist, "UniqueClientId", "LegalName"))">
+                            <option value="1">All</option>
+                        </select>
+                        <span asp-validation-for="ClientId" class="Validation-Color"></span>
+                    </div>
+
+                    <div class="inner-right-sec">
+                        <label> Quick Access</label>
+                        <br />
+                        <ul>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("FileUpload", "file")">Upload Files</a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="@Url.Action("ClientRegistration", "Client")">Client Registration</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("ClaimFileReportList", "Report")">Claim Detailed Report</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            }
+        </div>
+    }
+</div>
+<script>
+    $(document).ready(function () {
+
+        showLoader();
+        $("#idClientClaimChart").hide();
+
+        $("#idAdminClaimChart").hide();
+
+        GetClientClaimChart();
+
+        GetAdminClaimChart();
+
+    });
+    hideLoader();
+
+
+
+
+    var AdminClaimChart;
+    var ClientClaimChart;
+
+    $("#ClientId").on("change", function () {
+        GetAdminClaimChart();
+    });
+
+    function GetClientClaimChart() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetClientClaimsCount", "Dashboard")',
+            dataType: 'json',
+            async: false,
+            beforeSend: function () {
+                showLoader();
+            },
+            success: function (dataresult) {
+
+                var TotalClaims = [];
+                var TotalGeneric = [];
+                var TotalBrands = [];
+                var TotalSpecialty = [];
+                var TotalRejected = [];
+                var qtrlabels = [];
+                var labels = ["Total Claims Submitted", "Total Generic Exceptions", "Total Brands", "Total Specialty", "Total Rejected/Exceptions"];
+                var colors = ['rgba(233,30,99,0.4)', 'rgba(63,81,181,0.4)','rgba(0,77,64,0.4)','rgba(46,204,113,0.4)', 'rgba(255, 30, 8, 0.4)'];
+                var borderColors = ['#E91E63', '#3f51b5', '#004d40', '#2ecc71','#e74c3c'];
+                if (dataresult != "[]" && dataresult.length > 0) {
+
+                    var result = JSON.parse(dataresult);
+                    if (result.length == 0) {
+                        $("#idClientClaimChart").hide();
+                    } else {
+                        $("#idClientClaimChart").show();
+
+                        for (var i = 0; i < result.length; i++) {
+
+                            TotalClaims.push(result[i].TotalCount);
+                            TotalGeneric.push(result[i].GenericCount);
+                            TotalBrands.push(result[i].BrandCount);
+                            TotalSpecialty.push(result[i].SpecialtyCount);
+                            TotalRejected.push(result[i].RejectedCount);
+                            qtrlabels.push(result[i].quarter + "Qtr")
+                        }
+                        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+
+                        if (ClientClaimChart && isSafari == false) {
+                            ClientClaimChart.destroy();
+                        }
+
+                       var ClientClaimChartctx = document.getElementById("ClientClaimChart").getContext('2d');
+                        ClientClaimChart =  new Chart(ClientClaimChartctx, {
+                            type: 'bar',
+                            data: {
+                                labels: qtrlabels,
+                                datasets: [{
+                                    label: labels[0],
+                                    fill: false,
+                                    data: TotalClaims,
+                                    backgroundColor: colors[0],
+                                    borderColor: borderColors[0],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }, {
+                                    label: labels[1],
+                                    fill: false,
+                                    data: TotalGeneric,
+                                    backgroundColor: colors[1],
+                                    borderColor: borderColors[1],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }, {
+                                    label: labels[2],
+                                    fill: false,
+                                        data: TotalBrands,
+                                    backgroundColor: colors[2],
+                                    borderColor: borderColors[2],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }, {
+                                    label: labels[3],
+                                    fill: false,
+                                        data: TotalSpecialty,
+                                    backgroundColor: colors[3],
+                                    borderColor: borderColors[3],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }, {
+                                    label: labels[4],
+                                    fill: false,
+                                    data: TotalRejected,
+                                    backgroundColor: colors[4],
+                                    borderColor: borderColors[4],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                  display: true,
+                                  position: 'bottom',
+                                  labels: {
+                                    fontColor: 'black',
+                                    fontFamily: "'Roboto', 'Arial', sans-serif",
+                                    fontSize: 14,
+                                  }
+                                },
+                                title: {
+                                    display: true,
+                                    text: result[0].ClientName + ' Submission Quarterly Summary'
+                                },
+                                responsive: true,
+
+                                tooltips: {
+                                    borderColor: 'rgba(18, 38, 63, 0.2)',
+                                    borderWidth: 1,
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    cornerRadius: 10,
+                                    titleFontColor: 'rgb(18,38,63)',
+                                    titleFontFamily: "'Cerebri Sans', 'Arial', sans-serif",
+                                    titleFontSize: 20,
+                                    bodyFontColor: 'rgb(18,38,63)',
+                                    bodyFontFamily: "'Cerebri Sans', 'Arial', sans-serif",
+                                    bodyFontSize: 16,
+                                    xPadding: 19,
+                                    yPadding: 16,
+                                    labelColors: colors,
+                                    caretSize: 8,
+                                    bodySpacing: 200
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    $("#idClientClaimChart").hide();
+                }
+            },
+            complete: function (data) {
+
+                hideLoader();
+            }
+    });
+    }
+
+
+
+    function GetAdminClaimChart() {
+        $.ajax({
+        type: 'GET',
+        url: '@Url.Action("GetVativoUserClaimChart", "Dashboard")',
+        dataType: 'json',
+            data: { "ClientId": $("#ClientId option:selected").val() },
+            async: false,
+            beforeSend: function () {
+                showLoader();
+            },
+            success: function (data) {
+
+                var TotalClaims = [];
+                var TotalGeneric = [];
+                var TotalException = [];
+                var TotalPaid = [];
+                var TotalRejected = [];
+                var qtrlabels = [];
+                var labels = ["Total Claims Submitted", "Total Generic Exceptions", "Total Other Exceptions", "Total Paid Claims", "Total Rejected Claims"];
+                var colors = ['rgba(233,30,99,0.4)', 'rgba(63,81,181,0.4)','rgba(0,77,64,0.4)','rgba(46,204,113,0.4)', 'rgba(255, 30, 8, 0.4)'];
+                var borderColors = ['#E91E63', '#3f51b5', '#004d40', '#2ecc71','#e74c3c'];
+                if (data != "[]" && data.length > 0) {
+                    var result = JSON.parse(data);
+                    if (result.length == 0) {
+                        $("#idAdminClaimChart").hide();
+                    } else {
+                        $("#idAdminClaimChart").show();
+                        for (var i = 0; i < result.length; i++) {
+
+                            TotalClaims.push(result[i].TotalClaimProcessed);
+                            TotalGeneric.push(result[i].GenericCount);
+                            TotalException.push(result[i].ExceptionCount);
+                            TotalPaid.push(result[i].ValidCount);
+                            TotalRejected.push(result[i].RejectedClaimCount);
+                            qtrlabels.push(result[i].Quarter + "Qtr")
+                        }
+                        var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+
+                        if (AdminClaimChart && isSafari == false) {
+                            AdminClaimChart.destroy();
+                        }
+                        var AdminClaimChartctx = document.getElementById("AdminClaimChart").getContext('2d');
+                        AdminClaimChart = new Chart(AdminClaimChartctx, {
+                            type: 'bar',
+                            data: {
+                                labels: qtrlabels,
+                                datasets: [{
+                                    label: labels[0],
+                                    fill: false,
+                                    data: TotalClaims,
+                                    backgroundColor: colors[0],
+                                    borderColor: borderColors[0],
+                                    barThickness: 'flex',
+                                    maxBarThickness: '17',
+                                }, {
+                                        label: labels[1],
+                                        fill: false,
+                                        data: TotalGeneric,
+                                        backgroundColor: colors[1],
+                                        borderColor: borderColors[1],
+                                        barThickness: 'flex',
+                                        maxBarThickness: '17',
+                                    }, {
+                                        label: labels[2],
+                                        fill: false,
+                                        data: TotalException,
+                                        backgroundColor: colors[2],
+                                        borderColor: borderColors[2],
+                                        barThickness: 'flex',
+                                        maxBarThickness: '17',
+                                    }, {
+                                        label: labels[3],
+                                        fill: false,
+                                        data: TotalPaid,
+                                        backgroundColor: colors[3],
+                                        borderColor: borderColors[3],
+                                        barThickness: 'flex',
+                                        maxBarThickness: '17',
+                                    }, {
+                                        label: labels[4],
+                                        fill: false,
+                                        data:TotalRejected,
+                                        backgroundColor: colors[4],
+                                        borderColor: borderColors[4],
+                                        barThickness: 'flex',
+                                        maxBarThickness: '17',
+                                    }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        }
+                                    }]
+                                },
+                                title: {
+                                    display: true,
+                                    text: $("#ClientId option:selected").text() + ' Client Submission Quarterly Summary'
+                                },
+                                responsive: true,
+
+                                tooltips: {
+                                    borderColor: 'rgba(18, 38, 63, 0.2)',
+                                    borderWidth: 1,
+                                    backgroundColor: 'rgb(255, 255, 255)',
+                                    cornerRadius: 10,
+                                    titleFontColor: 'rgb(18,38,63)',
+                                    titleFontFamily: "'Cerebri Sans', 'Arial', sans-serif",
+                                    titleFontSize: 20,
+                                    bodyFontColor: 'rgb(18,38,63)',
+                                    bodyFontFamily: "'Cerebri Sans', 'Arial', sans-serif",
+                                    bodyFontSize: 16,
+                                    xPadding: 19,
+                                    yPadding: 16,
+                                    labelColors: colors,
+                                    caretSize: 8,
+                                    bodySpacing: 200
+                                },
+                                legend: {
+                                  display: true,
+                                  position: 'bottom',
+                                  labels: {
+                                    fontColor: 'black',
+                                    fontFamily: "'Roboto', 'Arial', sans-serif",
+                                    fontSize: 14,
+                                  }
+                                }
+                            }
+                        });
+
+
+
+                    }
+                } else {
+                    $("#idAdminClaimChart").hide();
+                }
+            },
+            complete: function (data) {
+
+                hideLoader();
+            }
+    });
+    }
+
+
+
+
+    function legendClickCallback(event) {
+        event = event || window.event;
+
+        var target = event.target || event.srcElement;
+        while (target.nodeName !== 'LI') {
+            target = target.parentElement;
+        }
+        var parent = target.parentElement;
+
+        var chartId = parseInt(parent.classList[0].split("-")[0], 10);
+
+        var chart = Chart.instances[chartId];
+
+        var index = Array.prototype.slice.call(parent.children).indexOf(target);
+        var meta = chart.getDatasetMeta(0);
+        console.log(index);
+        var item = meta.data[index];
+
+        if (item.hidden === null || item.hidden === false) {
+            item.hidden = true;
+            target.classList.add('hidden');
+        } else {
+            target.classList.remove('hidden');
+            item.hidden = null;
+        }
+        chart.update();
+    }
+    function showLoader() {
+        $(".loading").css("display", "block");
+    }
+
+    function hideLoader() {
+        setTimeout(function () {
+            $(".loading").css("display", "none");
+        }, 1000);
+    }
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+</script>

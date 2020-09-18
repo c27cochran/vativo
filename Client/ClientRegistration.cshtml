@@ -1,0 +1,594 @@
+﻿@*@model ClientViewModel*@
+@model Vativo.UI.ViewModels.ClientDetailsViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Client Registration";
+}
+
+
+<h3 class="client-hdg">Client Detail</h3>
+<hr />
+<div class="@ViewBag.cssClass" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="contact-form">
+                <div class="row checkBoxWrapper">
+                    <div class="form-group checkMain checkBoxOuter col-sm-6">
+                        <input type="checkbox" asp-for="IsLiveClaimSubmission" class="checkbox checkInp" />
+                        <label>Client Submits Live Claim</label>
+                    </div>
+                    <div class="form-group checkMain text-right col-sm-6">
+                        <input type="checkbox" asp-for="InstantEligibilitySetup" class="checkbox checkInp" />
+                        <label>Eligibility on file </label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="form-group form-hght">
+                            <label>NPI</label><span class="required Validation-Color">*</span>
+                            <label>(Use comma(,) for multiple values)</label>
+                            <input asp-for="Npi" class="form-control" onkeypress="return isNumberKey(event)" placeholder="NPI" />
+                            <input asp-for="Npi" type="hidden" />
+                            <span asp-validation-for="Npi" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <div class="form-group form-hght">
+                            <input asp-for="UniqueClientId" type="hidden" />
+                            <label>Legal Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="LegalName" placeholder="Legal Name" class="form-control" maxlength="60" />
+                            <span asp-validation-for="LegalName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idTimeZone">
+                        <div class="form-group form-hght">
+                            <label>Client Time Zone</label><span class="required Validation-Color">*</span>
+                            <select asp-for="TimeZone" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.TimeStandardList)"></select>
+                            <span asp-validation-for="TimeZone" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idFEIN">
+                        <div class="form-group form-hght">
+                            <label>FEIN</label><span class="required Validation-Color">*</span>
+                            <input asp-for="Fein" placeholder="FEIN" class="form-control" maxlength="50" />
+                            <input asp-for="Fein" type="hidden" />
+                            <span asp-validation-for="Fein" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idServiceType">
+                        <div class="form-group form-hght">
+                            <label>Service Type</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ServiceTypeId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.ServiceTypeList)"></select>
+                            <span asp-validation-for="ServiceTypeId" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idClientRelationship">
+                        <div class="form-group form-hght">
+                            <label>Client Relationship</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientRelationship" onchange="RelationshipDDL();" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.ClientRelationShipList)"></select>
+                            <span asp-validation-for="ClientRelationship" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idClientParentID">
+                        <div class="form-group form-hght">
+                            <label>Client's Parent</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientParentId" class="form-control" asp-items="@(new SelectList(ViewBag.Clientlist, "UniqueClientId", "LegalName"))">
+                                <option value="">Select Client's Parent</option>
+                            </select>
+                            <span id="ClientParent" asp-validation-for="ClientParentId" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idServiceLocationAddress">
+                        <div class="form-group form-hght">
+                            <label>Service Location Address</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ServiceLocationAddress" placeholder="Service Location Address" class="form-control" maxlength="250" />
+                            <span asp-validation-for="ServiceLocationAddress" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idClientId">
+                        <div class="form-group form-hght">
+                            <label>ClientId</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ClientId" placeholder="Email" class="form-control" maxlength="16" readonly />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-sm-12" id="idContactPersonName">
+                        <div class="form-group form-hght">
+                            <label>Contact Person Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ContactPersonName" placeholder="Contact Person Name" class="form-control" maxlength="50" />
+                            <span asp-validation-for="ContactPersonName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idContactPersonPhone">
+                        <div class="form-group form-hght">
+                            <label>Contact Person Phone</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ContactPersonPhone" onkeypress="if(isNaN(String.fromCharCode(event.keyCode))) return false;" placeholder="Contact Person Phone" class="form-control" maxlength="10" />
+                            <span asp-validation-for="ContactPersonPhone" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idContactPersonPhoneNumberExtension">
+                        <div class="form-group form-hght">
+                            <label>Contact Person Phone Number Extension</label>
+                            <input asp-for=ContactPersonPhoneNumberExtension placeholder="Contact Person Phone Number Extension" class="form-control allownumericwithoutdecimal" maxlength="7" />
+                            <span asp-validation-for="ContactPersonPhoneNumberExtension" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idContactPersonEmail">
+                        <div class="form-group form-hght">
+                            <label>Contact Person Email</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ContactPersonEmail" placeholder="Contact Person Email" class="form-control" maxlength="50" />
+                            <span asp-validation-for="ContactPersonEmail" class="Validation-Color"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-sm-12" id="idContractEffectiveDate">
+                        <div class="form-group form-hght">
+                            <label>Contract Effective Date</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ContractEffectiveDate" placeholder="mm/dd/yyyy" class="form-control" maxlength="20" />
+                            <span asp-validation-for="ContractEffectiveDate" class="Validation-Color"></span>
+                            <span id="effectiveDatespan" class="Validation-Color" hidden>Contract Effective date should be less than Contract Terminate date</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idContractTerminationDate">
+                        <div class="form-group form-hght">
+                            <label>Contract Termination Date</label>@*<span class="required Validation-Color">*</span>*@
+                            <input asp-for="ContractTerminationDate" placeholder="mm/dd/yyyy" class="form-control" maxlength="20" />
+                            <span asp-validation-for="ContractTerminationDate" class="Validation-Color"></span>
+                            <span id="terminateDatespan" class="Validation-Color" hidden>Contract Terminate date should be greater than Contract Effective date</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idRebatePercentage">
+                        <div class="form-group form-hght">
+                            <label>Rebate Percentage %</label><span class="required Validation-Color">*</span>
+                            <input asp-for="RebatePercentage" placeholder="%" class="form-control allownumericwithdecimal" maxlength="20" />
+                            <span asp-validation-for="RebatePercentage" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idBrandRate">
+                        <div class="form-group form-hght">
+                            <label>Brand Rate </label><span class="required Validation-Color">*</span>
+                            <input asp-for="BrandRate" placeholder="Brand Rate" onblur="validate();" class="form-control allownumericwithdecimal" maxlength="20" />
+                            <span id="BrandRatePercent" asp-validation-for="BrandRate" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idSpecialtyRateAmount">
+                        <div class="form-group form-hght" id="SpecialtyRateAmount">
+                            <label>Specialty Rate</label><span class="required Validation-Color">*</span>
+                            <input asp-for="SpecialityRate" placeholder="Specialty Rate" onblur="validate();" class="form-control allownumericwithdecimal" maxlength="20" />
+                            <span id="SpecialityPercent" asp-validation-for="SpecialityRate" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idTimeZone">
+                        <div class="form-group form-hght">
+                            <label>Account Manager</label><span class="required Validation-Color">*</span>
+                            <select asp-for="AccountManager" class="form-control" asp-items="@((IEnumerable<SelectListItem>) ViewBag.AccountManagerList)"></select>
+                            <span asp-validation-for="AccountManager" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idSalesRepresentativeName">
+                        <div class="form-group form-hght">
+                            <label>Sales Representative Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="SalesRepresentativeName" placeholder="Sales Representative Name" class="form-control" maxlength="50" />
+                            <span asp-validation-for="SalesRepresentativeName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idSalesRepresentativePercentage">
+                        <div class="form-group form-hght">
+                            <label>Sales Representative Percentage</label><span class="required Validation-Color">*</span>
+                            <input asp-for="SalesRepresentativePercentage" placeholder="Sales Representative Percentage" class="form-control allownumericwithdecimal" maxlength="15" />
+                            <span asp-validation-for="SalesRepresentativePercentage" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idSalesRepresentativeAccountManagingEndDate">
+                        <div class="form-group form-hght">
+                            <label>Sales Representative Account Managing End Date</label>@*<span class="required Validation-Color">*</span>*@
+                            <input asp-for="SalesRepresentativeAccountManagingEndDate" placeholder="mm/dd/yyyy" class="form-control datecheck" />
+                            <span asp-validation-for="SalesRepresentativeAccountManagingEndDate" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idGroupID">
+                        <div class="form-group form-hght">
+                            <label>Group ID</label><span class="required Validation-Color">*</span>
+                            <label>(Use comma(,) for multiple values)</label>
+                            <input asp-for="GroupId" onkeypress="if(event.keyCode==32) return false;" placeholder="Group ID" class="form-control" />
+                            <span asp-validation-for="GroupId" class="Validation-Color"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-sm-12" id="idAccountName">
+                        <div class="form-group form-hght">
+                            <label>Account Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="AccountName" placeholder="Account Name" class="form-control" maxlength="50" />
+                            <span asp-validation-for="AccountName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idAccountSetupFee">
+                        <div class="form-group form-hght">
+                            <label>Account Setup Fee</label><span class="required Validation-Color"></span>
+                            <input asp-for="AccountSetupFee" placeholder="Account Setup Fee" class="form-control allownumericwithdecimal" maxlength="10" />
+
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12" id="idProcessingFee">
+                        <div class="form-group form-hght">
+                            <label>Processing Fee</label><span class="required Validation-Color"></span>
+                            <input asp-for="ProcessingFee" placeholder="Processing Fee" class="form-control allownumericwithdecimal" maxlength="10" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12" id="idClientCode">
+                        <div class="form-group form-hght">
+                            <label>Client Code</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ClientCode" placeholder="Client Code" class="form-control" maxlength="5" />
+                            <span asp-validation-for="ClientCode" class="Validation-Color"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 statusFieldWrapper">
+                        <div class="form-group form-hght">
+                            <label>Status</label><span class="required Validation-Color">*</span>
+                            <select asp-for="Status" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.StatusList)"></select>
+                            <span asp-validation-for="Status" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <div class="form-group form-hght btnWrapper regBtnWrapper">
+                            @if (@ViewBag.Status == "Update")
+                            {
+                                <input type="submit" value="Update" class="btn btn-primary btn-round hght-reg" />
+                            }
+                            else
+                            {
+                                <input type="submit" id="submitForm" value="Register" class="btn btn-primary btn-round hght-reg" />
+                            }
+                            <span>&nbsp;</span>
+                            @Html.ActionLink("Cancel", "index", "client", null, new { @class = "btn btn-primary btn-round hght-reg" })
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-6 col-sm-12">
+                        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    var today = new Date();
+    var date = (today.getMonth() + 1) + '/' + today.getDate()+'/'+today.getFullYear();
+    $(document).ready(function () {
+        function preventMultipleSubmissions() {
+            $('#submitForm').prop('disabled', true);
+        }
+        window.onbeforeunload = preventMultipleSubmissions;
+        $("#ContractEffectiveDate").datepicker({
+            dateFormat: "mm/dd/yy",
+            onClose: function (selectedDate) {
+                var minDate = $(this).datepicker('getDate');
+                var newMin = new Date(minDate.setDate(minDate.getDate()));
+                $("#ContractEffectiveDate").datepicker("option", "defaultDate", newMin);
+            }
+        });
+
+        $("#ContractTerminationDate").datepicker({
+            dateFormat: "mm/dd/yy",
+            onClose: function (selectedDate) {
+                var minDate = $(this).datepicker('getDate');
+                var newMin = new Date(minDate.setDate(minDate.getDate()));
+                $("#ContractTerminationDate").datepicker("option", "defaultDate", newMin);
+            }
+        });
+        $("#SalesRepresentativeAccountManagingEndDate").datepicker({
+            dateFormat: "mm/dd/yy",
+            onClose: function (selectedDate) {
+                var minDate = $(this).datepicker('getDate');
+                var newMin = minDate == null ? new Date(date) : new Date(minDate.setDate(minDate.getDate()));
+                $("#SalesRepresentativeAccountManagingEndDate").datepicker("option", "defaultDate", newMin);
+            }
+        });
+        //$("#FirstClaimDataPushDate").datepicker({
+        //    dateFormat: "mm/dd/yy",
+        //});
+        //$("#FirstClaimDataPullDate").datepicker({
+        //    dateFormat: "mm/dd/yy",
+        //});
+        $("#ContractEffectiveDate").change(function () {
+
+            if ($("#ContractTerminationDate").val() != "") {
+                EffDate = new Date($("#ContractEffectiveDate").val());
+                TerDate = new Date($("#ContractTerminationDate").val());
+
+                if (TerDate < EffDate) {
+                    $("#effectiveDatespan").show();
+                    $("#terminateDatespan").hide();
+                    return false;
+                }
+                else {
+                    $("#effectiveDatespan").hide();
+                    $("#terminateDatespan").hide();
+                    return true;
+                }
+            }
+        });
+        $("#ContractTerminationDate").change(function () {
+            EffDate = new Date($("#ContractEffectiveDate").val());
+            TerDate = new Date($("#ContractTerminationDate").val());
+            if (TerDate < EffDate) {
+                $("#terminateDatespan").show();
+                return false;
+            }
+            else {
+                $("#terminateDatespan").hide();
+                $("#effectiveDatespan").hide();
+                return true;
+            }
+        });
+        $("#FirstClaimDataPushDate").change(function () {
+            PushEffDate = new Date($("#FirstClaimDataPushDate").val());
+            PullDate = new Date($("#FirstClaimDataPullDate").val());
+            if (PullDate < PushEffDate) {
+                $("#PushDatespan").show();
+                $("#PullDatespan").hide();
+                return false;
+            }
+            else {
+                $("#PushDatespan").hide();
+                $("#PullDatespan").hide();
+                return true;
+            }
+        });
+        $("#FirstClaimDataPullDate").change(function () {
+            PushEffDate = new Date($("#FirstClaimDataPushDate").val());
+            PullDate = new Date($("#FirstClaimDataPullDate").val());
+            if (PullDate < PushEffDate) {
+                $("#PullDatespan").show();
+                return false;
+            }
+            else {
+                $("#PullDatespan").hide();
+                $("#PushDatespan").hide();
+                return true;
+            }
+        });
+
+        $("form").submit(function (event) {
+            if ($("#ClientRelationship").val() == 2) {
+                if ($("#ClientParentId").val() == "") {
+                    $("#ClientParent").text("Client's Parent is required");
+                    return false;
+                }
+            }
+            else {
+                $("#ClientParent").text("");
+            }
+            var RateType = $("#RateType option:selected").text();
+            if (RateType == "%") {
+                var brandPercentage = parseInt($('#BrandRate').val());
+                var specialityPercentage = parseInt($('#SpecialtyRate').val());
+                    if (brandPercentage < 0 || brandPercentage > 100) {
+                        $("#BrandRatePercent").text('Please enter the correct percentage.');
+                        event.preventDefault();
+                    }
+                    if (specialityPercentage < 0 || specialityPercentage > 100) {
+                        $("#SpecialityPercent").text('Please enter the correct percentage.');
+                        event.preventDefault();
+                    }
+            }
+        });
+
+    });
+
+    $("#ClientRelationship").change(function (event) {
+        RelationshipDDL();
+    });
+
+    function RelationshipDDL() {
+        var Relation = $("#ClientRelationship option:selected").text();
+        if (Relation == 'Parent') {
+            $("#ClientParentId").prop('disabled', 'disabled');
+        }
+        else if (Relation == 'Child') {
+            $("#ClientParentId").prop('disabled', false);
+        }
+    }
+
+    function Update() {
+        if ('@ViewBag.Status' == 'Update') {
+
+            var Relation = $("#ClientRelationship option:selected").text();
+            if (Relation == 'Parent') {
+                $("#ClientParentId").prop('disabled', 'disabled');
+            }
+            //$("#FEIN").prop('disabled', 'disabled');
+            ////$("#NCPDP").prop('disabled', 'disabled');
+            //$("#NPI").prop('disabled', 'disabled');
+            //$("#Email").prop('disabled', 'disabled');
+        }
+    }
+    window.onload = Update();
+
+    function SftpPasswordValue() {
+        if ($('#SFTPPassword').val() == null || $('#SFTPPassword').val() == '') {
+            $('#SFTPPassword').val() = '@ViewBag.OldSFTPPwd';
+           alert(('#SFTPPassword').val());
+        }
+    }
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+    function validate() {
+        var RateType = $("#RateType option:selected").text();
+        if (RateType == "%") {
+            var brandPercentage = parseInt($('#BrandRate').val());
+            var specialityPercentage = parseInt($('#SpecialtyRate').val());
+
+            if (brandPercentage != null)
+            {
+                if (brandPercentage < 0 || brandPercentage > 100)
+                {
+                    $("#BrandRatePercent").text('Please enter the correct percentage.');
+                    event.preventDefault();
+                }
+            }
+            if (specialityPercentage != null)
+            {
+                if (specialityPercentage < 0 || specialityPercentage > 100) {
+                    $("#SpecialityPercent").text('Please enter the correct percentage.');
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+
+    $("#BrandRate").change(function (event) {
+        var outputPercentage = parseInt($('#BrandRate').val());
+        if (outputPercentage >= 1 || outputPercentage <= 100) {
+            $("#BrandRatePercent").text('Please enter the correct percentage.');
+            event.preventDefault();
+        }
+    });
+
+    $(".allownumericwithoutdecimal").on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 44
+            && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $('#IsRebate').change(function () {
+        if ($('#IsRebate').is(':checked') == true) {
+           // $("#idTimeZone").hide();
+            $("#idFEIN").hide();
+            $("#idServiceType").hide();
+            $("#idClientRelationship").hide();
+            $("#idClientParentID").hide();
+            $("#idServiceLocationAddress").hide();
+            $("#idClientParentID").hide();
+            $("#idContactPersonName").hide();
+            $("#idContactPersonPhone").hide();
+            $("#idContactPersonPhoneNumberExtension").hide();
+            $("#idContactPersonEmail").hide();
+            $("#idContractEffectiveDate").hide();
+            $("#idContractTerminationDate").hide();
+            $("#idSalesRepresentativeName").hide();
+            $("#idSalesRepresentativePercentage").hide();
+            $("#idSalesRepresentativeAccountManagingEndDate").hide();
+            //$("#idGroupID").hide();
+            $("#idAccountName").hide();
+        } else {
+           // $("#idTimeZone").show();
+            $("#idFEIN").show();
+            $("#idServiceType").show();
+            $("#idClientRelationship").show();
+            $("#idClientParentID").show();
+            $("#idServiceLocationAddress").show();
+            $("#idClientParentID").show();
+            $("#idContactPersonName").show();
+            $("#idContactPersonPhone").show();
+            $("#idContactPersonPhoneNumberExtension").show();
+            $("#idContactPersonEmail").show();
+            $("#idContractEffectiveDate").show();
+            $("#idContractTerminationDate").show();
+            $("#idSalesRepresentativeName").show();
+            $("#idSalesRepresentativePercentage").show();
+            $("#idSalesRepresentativeAccountManagingEndDate").show();
+           // $("#idGroupID").show();
+            $("#idAccountName").show();
+        }
+    });
+    if ($('#IsRebate').is(':checked') == true) {
+        //$("#idTimeZone").hide();
+        $("#idFEIN").hide();
+        $("#idServiceType").hide();
+        $("#idClientRelationship").hide();
+        $("#idClientParentID").hide();
+        $("#idServiceLocationAddress").hide();
+        $("#idClientParentID").hide();
+        $("#idContactPersonName").hide();
+        $("#idContactPersonPhone").hide();
+        $("#idContactPersonPhoneNumberExtension").hide();
+        $("#idContactPersonEmail").hide();
+        $("#idContractEffectiveDate").hide();
+        $("#idContractTerminationDate").hide();
+        $("#idSalesRepresentativeName").hide();
+        $("#idSalesRepresentativePercentage").hide();
+        $("#idSalesRepresentativeAccountManagingEndDate").hide();
+       // $("#idGroupID").hide();
+        $("#idAccountName").hide();
+    } else {
+        //$("#idTimeZone").show();
+        $("#idFEIN").show();
+        $("#idServiceType").show();
+        $("#idClientRelationship").show();
+        $("#idClientParentID").show();
+        $("#idServiceLocationAddress").show();
+        $("#idClientParentID").show();
+        $("#idContactPersonName").show();
+        $("#idContactPersonPhone").show();
+        $("#idContactPersonPhoneNumberExtension").show();
+        $("#idContactPersonEmail").show();
+        $("#idContractEffectiveDate").show();
+        $("#idContractTerminationDate").show();
+        $("#idSalesRepresentativeName").show();
+        $("#idSalesRepresentativePercentage").show();
+        $("#idSalesRepresentativeAccountManagingEndDate").show();
+      //  $("#idGroupID").show();
+        $("#idAccountName").show();
+    }
+</script>

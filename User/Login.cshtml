@@ -1,0 +1,78 @@
+﻿@model Vativo.UI.ViewModels.LoginViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+<hr />
+
+@if (!string.IsNullOrEmpty(Convert.ToString(TempData["Message"])))
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Message"]</p>
+}
+
+<div id="content_container" class="zoom-newcontent loginMain">
+    <div id="content_success_msg" role="alert" aria-live="assertive" class="alert alert-success hideme zoom-newmessage"></div>
+    <div id="content" class="container">
+        <div class="mini-layout" id="login">
+            <div class="mini-layout-body">
+                <div class="page-header">
+                    <h1>Sign In</h1>
+                </div>
+                <div class="">
+                    <div class="form">
+                        <div id="error_msg" class="alert alert-danger alert-dismissible hideme" role="alert"></div>
+                    </div>
+                    <div class="form-group">
+                        <div class="controls">
+                            <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                        </div>
+                    </div>
+                    <form method="post" class="login-form">
+                        <div class="form-group">
+                            <div class="controls">
+                                <label for="email" class="email-label">Email address</label>
+                                <input asp-for="Email" class="form-control input" placeholder="Email" />
+                                <span asp-validation-for="Email" class="Validation-Color"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="controls">
+                                <label for="password" class="password-label">Password</label>
+                                <input asp-for="Password" class="form-control input" placeholder="Password" />
+                                <span asp-validation-for="Password" class="Validation-Color"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="controls">
+                                <div class="signin">
+                                    <input type="submit" value="Sign In" class="btn btn-primary btn-round submit signin user logInput" />
+                                </div>
+                                <div class="forgot">
+                                    <div class="left">
+                                        <a href="@Url.Action("resetpassword", "user")">Forgot Your Password?</a>
+                                        @* @Html.ActionLink("Forgot Your Password?", "ResetPassword", "user", null, new { @class = "text-center  pull-left" })*@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
+<script>
+    $("#Email").blur(function () {
+        $(this).val(jQuery.trim($(this).val()));
+    });
+    if ($("#successMessage").val() !== undefined) {
+        window.setTimeout(function () {
+            $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+</script>

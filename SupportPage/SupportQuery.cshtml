@@ -1,0 +1,51 @@
+﻿@model Vativo.UI.ViewModels.SupportPageViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Support";
+}
+<form method="post" id="form">
+
+    @*TODO: POOJA PARWAL ON 16/03/20*@
+    <div class=" col-xs-12 col-sm-12 innerFormWrapper">
+        <div class="row change-main chngBg changePassWrapper">
+            <h3 class="client-hdg chang-hdg">Support</h3>
+            <hr />
+            <div class="@ViewBag.cssClass" role="alert">
+                <strong>@ViewBag.message</strong>
+            </div>
+            <div class="col-md-12 col-sm-12 innerFormWrapper">
+                <div class="contact-form">
+                    <div class="row">
+                        <div class="col-md-5 col-md-offset-4 innerFormWrapper">
+
+                            <div class="form-group">
+                                <label>Subject</label><span class="required Validation-Color">*</span>
+                                <input asp-for="Subject" placeholder="Subject" class="form-control" maxlength="100" />
+                                <span asp-validation-for="Subject" class="Validation-Color"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label><span class="required Validation-Color">*</span>
+                                <textarea asp-for="Description" placeholder="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="Validation-Color"></span>
+                            </div>
+                            <div class="form-group  change-main-btn">
+                                <input type="submit" id="submitForm" value="Submit" class="btn btn-primary btn-round hght-reg" />
+                                <span>&nbsp;</span>
+                                @Html.ActionLink("Cancel", "index", "Dashboard", null, new { @class = "btn btn-primary btn-round hght-reg" })
+                            </div>
+
+                            <div class="form-group"><div class=@ViewBag.cssClass asp-validation-summary="ModelOnly"></div></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</form>
+
+@*<div>
+        <a asp-action="Index">Back to List</a>
+    </div>*@
+

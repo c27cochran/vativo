@@ -1,0 +1,94 @@
+﻿@model Vativo.UI.ViewModels.ReportViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Claim Detailed List";
+}
+
+<form method="post" class="postMar">
+    <section>
+        <div class="@ViewBag.cssClass" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Detailed Report List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Request Report", "ClaimFileReport", "Report", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblClaimFileFile" class="table table-striped table-bordered tabSort" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>Request By</th>
+                                <th>Filter By</th>
+                                <th>From Date</th>
+                                <th>To Date</th>
+                                <th>Report Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.ClaimReport)
+                                {
+                                    <tr class="odevFont">
+                                        <td width="5%">@i</td>
+                                        <td>
+                                            <label>@item.RequesterName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.AccountName</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.FromDate</label>
+                                        </td>
+                                        <td>
+                                            <label>@item.ToDate</label>
+                                        </td>
+                                        <td>
+                                            @if (item.Status == "Pending")
+                                            {
+                                                <label>@item.Status</label>
+                                            }
+                                            else if (item.Status == "Done" && item.ReportFilePath == null)
+                                            {
+                                                <label>No Record Found</label>
+                                            }
+                                            else
+                                            {
+                                                <a id="download" href="@Url.Action("FileDownload", "Report", new { ReportId=item.UniqueDetailedReport, ReportType="Detailed" })">Download</a>
+                                            }
+                                        </td>
+
+                                    </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblClaimFileFile').DataTable({
+            "bSort": true, "scrollX": true, "pagingType": "input", "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ]});
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>

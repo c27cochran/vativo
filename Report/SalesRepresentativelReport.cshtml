@@ -1,0 +1,302 @@
+﻿@model Vativo.UI.ViewModels.SalesRepresentativeViewModel
+@{
+    ViewData["Title"] = ":: VativoRx ::Sales Representative Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script src="~/js/jquery.dataTables.min.js"></script>
+
+<h3 class="client-hdg">Sales Representative Report</h3>
+<form method="post" id="form">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>Date</label><span class="required Validation-Color">*</span>
+                    <select asp-for="DateId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.DateComparisonList)"></select>
+                    <span asp-validation-for="DateId" class="Validation-Color"></span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>From Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSFromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="fromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>To Date</label><span class="required Validation-Color">*</span>
+                    <input asp-for="DOSToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                    <span id="toDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                </div>
+            </div>
+
+            @*<div class="col-md-12 col-sm-12">
+                    <div class="col-md-2 col-sm-2"><div class="form-group form-hght"> <label>Submitted Date</label></div></div>
+                    <div class="col-md-5 col-sm-5">
+                        <div class="form-group form-hght">
+                            <label>From Date</label><span class="required Validation-Color">*</span>
+                            <input asp-for="SUBFromDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                            <span id="subfromDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                        <div class="form-group form-hght">
+                            <label>To Date</label><span class="required Validation-Color">*</span>
+                            <input asp-for="SUBToDate" placeholder="mm-dd-yyyy" readonly class="form-control" maxlength="20" />
+                            <span id="subtoDatespan" class="Validation-Color" hidden>Please enter Valid date</span>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="col-md-6 col-sm-6">
+                <div class="form-group form-hght">
+                    <label>Sales Representative</label><span class="required Validation-Color">*</span>
+                    <select asp-for="SalesUserId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.SalesUserList)"></select>
+                    <span asp-validation-for="SalesUserId" class="Validation-Color"></span>
+                </div>
+            </div>
+
+            <div class="col-md-12 col-sm-6">
+                <div class="form-group form-hght btnWrapper salesBtn">
+
+                    <input type="submit" id="submitForm" value="Get Report" class="btn btn-primary btn-round hght-reg" />
+                    <div id="ExcelReport" hidden>
+                        <a id="download" class="btn btn-primary btn-round hght-reg" href="@Url.Action("SalesRepresentationReportDownload", "Report",new {  fromDate=Model.DOSFromDate,todate = Model.DOSToDate,dateId=Model.DateId,SalesUserId=Model.SalesUserId})">Export Excel</a>
+                    </div>
+                    <div id="PdfReport" hidden>
+                        <a class="btn btn-primary btn-round hght-reg" onclick="GetPDF()">Export PDF</a>
+                    </div>
+
+                </div>
+                <div class="col-md-6 col-sm-6">
+                    <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<form id="TheForm" method="post" action="/report/DownloadPDF" target="TheWindow">
+    <input type="hidden" id="html" name="html" value="" />
+    <input type="hidden" id="fileName" name="fileName" value="" />
+</form>
+
+@if (Model.salesRepresentativeReportList.Count <= 0)
+{
+    <div style="text-align:center" class="alert alert-danger" id="idNoResult">
+        <label class="Validation-Color">No Record Found</label>
+    </div>
+}
+<div id="idReport" class="pdfTable">
+    <table style="max-width: 1140px; width: 100%; margin: 0px auto;" id="idHeaderTable" hidden>
+        <tr>
+            <td>
+
+                <table id="example" class="display nowrap" style="width:100%; margin-top: 5px;">
+                    <div style="padding-left: 15px; padding-right: 15px;">
+                        <div class="headerLogo">
+                            <div>
+                                <img src="https://vativorx.net/images/VativoRxLogo.fw_.png" alt="" />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;" id="idGenerateDate" hidden>
+                        <div>
+                            <strong><label>@Model.GenerateDate</label></strong>
+                        </div>
+                    </div>
+                    <!--HEADER TABLE AREA END-->
+
+                    <div align="center" style=" margin: 20px auto;">
+                        <div>
+                            <div>
+                                <h3 style="text-transform: uppercase;text-align:center;">Claim Data Analysis And Rebate Summary</h3>
+                                <h4 style="text-transform: uppercase; color:#286090;">Confidential</h4>
+                            </div>
+                        </div>
+                    </div>
+                </table>
+                <div align="center" style="max-width: 1140px; margin: 20px auto;">
+                    <div style="text-align:center;">
+                        <div>
+                            <strong> <label id="idDate"></label> From <label id="idFrom"></label> Through <label id="idTo"></label></strong>
+                        </div>
+                    </div>
+                </div>
+                <table class="table salesReprentTable" style="margin-top: 40px; border: 2px solid #325490;" width="100%" cellspacing="0" cellpadding="0">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Client Name</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Total Number of Claims Processed</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Total Number of Claims for Rebate Eligible Brands</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Total Number of Claims for Rebate Eligible Specialty Drugs</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Brand Rebate Rate</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Specialty Rebate Rate</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Percentage Rebate Rate</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Total Rebate Amount</th>
+                            <th style="text-align: center; border-right: 2px solid #325490; border-bottom: 2px solid #325490;">Sale Representative percentage amount</th>
+                            <th style="text-align: center; border-bottom: 2px solid #325490; border-bottom: 2px solid #325490;">Sale amount</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var count = (decimal)0.00;
+                            var salescount = (decimal)0.00;
+
+                            foreach (var item in Model.salesRepresentativeReportList)
+                            {
+                                <tr style="border-top: 2px solid #325490;">
+                                    <td style="border-right: 2px solid #325490; border-bottom: 2px solid #325490; font-weight:bold; padding:0px 5px;">
+                                        <label>@item.ClientName</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>@item.TotalNumberOfClaimsProcessed</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>@item.TotalBrandClaims</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>@item.TotalSpecialtyClaims</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>$@item.RebateBrandRate</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>$@item.RebateSpecialtyRate</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>@item.PercentageRebateRate</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>@item.TotalRebateBrand</label>
+                                    </td>
+                                    <td style="border-right: 2px solid #325490;text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>$@item.SaleRepresentativePercentageAmount</label>
+                                    </td>
+                                    <td style="text-align:center; border-bottom: 2px solid #325490; font-weight:bold;">
+                                        <label>$@item.SaleAmount</label>
+                                    </td>
+                                </tr>
+                                count += @item.TotalRebateBrand;
+                                salescount += @item.SaleAmount;
+                            }
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="text-align: left; border-right: 2px solid #325490; font-weight:bold; padding:8px 5px;">Grand total</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="border-right: 2px solid #325490;text-align:center;"><label><strong>$@count</strong></label></td>
+                            <td style="border-right: 2px solid #325490;text-align:center;">&nbsp;</td>
+                            <td style="text-align:center; padding:8px 5px;"><label><strong>$@salescount</strong></label></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <table style="margin: 20px auto;">
+                    <div>
+                        <div style="text-align:center;width:100%;">
+                            <div colspan="4">
+                                <p>This document, including any associated documents, may contain information that is confidential and may be privileged and exempt from disclosure under applicable law. It is intended solely for the use of the individual or entity for which it is created. If you are not the intended recipient of this information, you are hereby notified that any use, disclosure, dissemination, or copying of this document is strictly prohibited. If you have received this document in error, please notify the distributor. Thank you for your cooperation.</p>
+                            </div>
+                        </div>
+                </table>
+
+                <!--HEADER FOOTER AREA END-->
+                <!--HEADER MIDDLE AREA END-->
+                <!--TABLE AREA END-->
+            </td>
+        </tr>
+
+    </table>
+
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+
+        $("#DOSFromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#DOSToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#DOSToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#DOSFromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+        $("#SUBFromDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            maxDate: '0',
+            onSelect: function (selectedDate, instance) {
+                $('#SUBToDate').datepicker('option', 'minDate', selectedDate);
+            },
+        });
+        $("#SUBToDate").datepicker({
+            dateFormat: "mm-dd-yy",
+            onSelect: function (selectedDate, instance) {
+                $('#SUBFromDate').datepicker('option', 'maxDate', selectedDate);
+            },
+        });
+
+    });
+
+
+        if ('@Model.salesRepresentativeReportList.Count'<=0) {
+            $("#idHeaderTable").hide();
+        }
+        else {
+            $("#idDate").text($("#DateId option:selected").text());
+            $("#idTo").text($("#DOSToDate").val());
+            $("#idFrom").text($("#DOSFromDate").val());
+            $("#idHeaderTable").show();
+            $("#ExcelReport").show();
+            $("#PdfReport").show();
+        }
+
+
+    function GetPDF() {
+        $("#idGenerateDate").show();
+        var html = $('#idReport').html();
+        document.getElementById('html').value = html;
+        document.getElementById('fileName').value = $("#SalesUserId option:selected").text()+"SalesRepresentativeReport.pdf";
+        var myWindow = window.open('', 'TheWindow');
+        document.getElementById('TheForm').submit();
+        $("#idGenerateDate").hide();
+        window.setTimeout(function () {
+            myWindow.close();
+        }, 3000);
+
+    }
+    //$("#download").click(function () {
+    //    //window.open('data:application/vnd.ms-excel,' + encodeURIComponent($('div[id$=idReport]').html()));
+    //    //e.preventDefault();
+    //    //});
+    //    var postfix = $("#SalesUserId option:selected").text() + " " + "Sales Representative Report";
+    //    //creating a temporary HTML link element (they support setting file names)
+    //    let file = new Blob([$('#idReport').html()], { type: "application/vnd.ms-excel" });
+
+    //    let url = URL.createObjectURL(file);
+
+    //    let a = $("<a />", {
+    //        href: url,
+    //        download: postfix + ".xls"
+    //    })
+    //        .appendTo("body")
+    //        .get(0)
+    //        .click();
+    //    e.preventDefault();
+    //});
+
+</script>

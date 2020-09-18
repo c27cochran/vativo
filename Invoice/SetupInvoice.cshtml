@@ -1,0 +1,360 @@
+﻿
+@model Vativo.UI.ViewModels.InvoiceViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Generate Invoice";
+}
+
+
+
+@*<h3 class="client-hdg">Setup Invoice</h3>*@
+<h3 class="client-hdg">Generate Invoice</h3>
+<hr />
+<script src="~/js/multiple-select.js"></script>
+<link href="~/css/multiple-select.css" rel="stylesheet" />
+
+<form method="post">
+    <div class="@ViewBag.cssClass" role="alert">
+        <strong>@ViewBag.message</strong>
+    </div>
+    <div class="loading" style="display:none">Loading&#8230;</div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="contact-form regs-main">
+                <div class="row">
+                    <div class="col-md-12 col-sm-6 col-xs-12 pls-area">
+                        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                    </div>
+
+                    <div class="right col-md-3 col-sm-3">
+                        <div class="form-group form-hght">
+                            <label>Invoice Type</label>
+                            <select asp-for="InvoiceType" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.InvoiceTypeList)"></select>
+                            <span asp-validation-for="InvoiceType" class="Validation-Color"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-3">
+                        <div class="form-group form-hght" id="ClientsLegalName">
+                            <label>Client Name</label>
+                            <select asp-for="ClientId" class="multiselect-ui form-control" asp-items="@ViewBag.ClientsLegalNameList as MultiSelectList" multiple="multiple"></select>
+                            <span id="ClientIdSpan" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        <div class="form-group form-hght" id="years">
+                            <label>Year</label>
+                            <select asp-for="Year" class="multiselect-ui form-control" asp-items="@ViewBag.Yearlist as MultiSelectList" multiple="multiple"></select>
+                            <span id="yearSpan" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        <div class="form-group form-hght" id="months">
+                            <label>Month</label>
+                            <select asp-for="Month" class="multiselect-ui form-control" multiple="multiple">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                            <span id="monthSpan" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <table id="tblInvoiceRequest" class="table table-striped table-bordered tabSort invoiceReq" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th class="th" style="width:10% !important;">Serial No.</th>
+                                <th>Client Name</th>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th align="center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    @*<div class="col-md-6 col-sm-6 col-xs-12 reg-area regMar pull-right">
+                            <input id="RegisterForm" type="submit" value="Generate Report" class="btn btn-primary btn-round registerBtn" />
+                            <span>&nbsp;</span>
+                            @Html.ActionLink("Cancel", "index", "invoice", null, new { @class = "btn btn-primary btn-round hght-reg" })
+                        </div>*@
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    var paginationShow = 1;
+    $(document).ready(function () {
+        $("#tblInvoiceRequest").hide();
+
+        $("#ClientId").multipleSelect({
+            filter: true,
+            placeholder: "--Select Client Name--"
+        })
+        $("#Year").multipleSelect({
+            filter: true,
+            placeholder: "--Select Year--"
+        })
+        $("#Month").multipleSelect({
+            filter: true,
+            placeholder: "--Select Month--"
+        })
+
+    });
+    //change 26/june/2020
+    $("#InvoiceType").change(function () {
+        selectChange();
+
+
+    });
+    //change end
+
+    $("#ClientId").change(function () {
+        selectChange();
+
+
+    });
+    $("#Year").change(function () {
+        selectChange();
+
+
+    });
+    $("#Month").change(function () {
+        selectChange();
+
+
+    });
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+    function selectChange() {
+
+        var InvoiceTypes = $("#InvoiceType option:selected").text().replace(" ", "").replace(" ", "");
+       
+        var SerialNo = 1;
+        var tr = "";
+        $("#tblInvoiceRequest").DataTable().destroy();
+
+        $("#ClientId option:selected").each(function () {
+
+            var $this = $(this);
+            if ($this.length) {
+                var client = $this.text().substr(0, $this.text().indexOf('('));
+                var clientV = $this.val();
+                $("#Year option:selected").each(function () {
+                    var $this = $(this);
+                    if ($this.length) {
+                        var year = $this.text();
+                        var yearV = $this.val();
+                        $("#Month option:selected").each(function () {
+                            var $this = $(this);
+                            if ($this.length) {
+                                var month = $this.text();
+                                var monthV = $this.val();
+
+
+                                showLoader();
+
+                                tr += '<tr>' +
+                                    //Added by Pooja on 1 july 2020 bug fix
+                                    '<td>' + SerialNo + '</td>' +
+                                    '<td>' + client + '</td>' +
+                                    '<td>' + year + '</td>' +
+                                    '<td>' + month + '</td>';
+                                var editTd = '<td></td>';
+                                var list = localStorage.getItem("list");
+
+                                if (list) {
+                                    list = JSON.parse(list);
+                                    var dt = clientV + "," + monthV;
+                                    if (dt) {
+                                       // var aa = list.filter(item => item.key == dt);
+                                        var aa = list.filter(function (item) { return item.key == dt });
+                                        if (aa.length == 0) {
+
+                                        $.ajax({
+                                        type: 'POST',
+                                        url: '@Url.Action("GetGeneratedInvoiceCount", "Invoice")',
+                                        dataType: 'json',
+                                            data: { Client: clientV, Year: yearV, Month: monthV, InvoiceType: InvoiceTypes},
+                                         async: false,
+                                        success:
+                                            function (response) {
+                                                if (response < 9) {
+
+                                                    if ($("#InvoiceType").val() == 1) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("SetupInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                    else if ($("#InvoiceType").val() == 2) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("ClientInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                     //Added by Pooja on 3 july 2020 for maintenance invoice
+                                                    else {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                        '@Url.Action("MaintenanceInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                } else {
+                                                    editTd =
+                                                            '<td style="text-align:center"><a class="icon-mar" href=' +
+                                                            '@Url.Action("Index", "Invoice") target="_blank"><img class="icon-mar" src="../images/ico/View.png"/></a></td>';
+                                                }
+                                             },
+                                         error:
+                                             function (response) {
+                                                 alert("Error: " + response);
+                                             }
+
+                                     });
+                                        }
+                                    } else {
+
+                                        $.ajax({
+                                        type: 'POST',
+                                        url: '@Url.Action("GetGeneratedInvoiceCount", "Invoice")',
+                                        dataType: 'json',
+                                            data: { Client: clientV, Year: yearV, Month: monthV, InvoiceType: InvoiceTypes },
+                                         async: false,
+                                        success:
+                                            function (response) {
+                                                if (response < 9) {
+
+                                                    if ($("#InvoiceType").val() == 1) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("SetupInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                    else if ($("#InvoiceType").val() == 2) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("ClientInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                    else {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                        '@Url.Action("MaintenanceInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                } else {
+                                                    editTd =
+                                                            '<td style="text-align:center"><a class="icon-mar" href=' +
+                                                            '@Url.Action("Index", "Invoice") target="_blank"><img class="icon-mar" src="../images/ico/View.png"/></a></td>';
+                                                }
+                                             },
+                                         error:
+                                             function (response) {
+                                                 alert("Error: " + response);
+                                             }
+
+                                     });
+                                    }
+                                } else {
+                                     $.ajax({
+                                        type: 'POST',
+                                        url: '@Url.Action("GetGeneratedInvoiceCount", "Invoice")',
+                                        dataType: 'json',
+                                         data: { Client: clientV, Year: yearV, Month: monthV, InvoiceType: InvoiceTypes },
+                                         async: false,
+                                        success:
+                                            function (response) {
+                                                if (response < 9) {
+
+                                                    if ($("#InvoiceType").val() == 1) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("SetupInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                    else if ($("#InvoiceType").val() == 2) {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                            '@Url.Action("ClientInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                    else {
+                                                        editTd =
+                                                            '<td style="text-align:center"><a class="edit-icon-cls" href=' +
+                                                        '@Url.Action("MaintenanceInvoiceDetails", "Invoice")?Client=' + clientV + '&Year=' + yearV + '&Month=' + monthV + '&InvoiceType=' + InvoiceTypes +
+                                                            ' target="_blank"><img class="icon-mar" src="../images/ico/edit.png"/></a></td>';
+                                                    }
+                                                } else {
+                                                    editTd =
+                                                            '<td style="text-align:center"><a class="icon-mar" href=' +
+                                                            '@Url.Action("Index", "Invoice") target="_blank"><img class="icon-mar" src="../images/ico/View.png"/></a></td>';
+                                                }
+                                             },
+                                         error:
+                                             function (response) {
+                                                 alert("Error: " + response);
+                                             }
+
+                                     });
+
+                                }
+
+                                tr = tr + editTd + '</tr>';
+                                SerialNo++;
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        $("#tblInvoiceRequest > tbody").html(tr);
+        if (tr == "") {
+            $("#tblInvoiceRequest").hide("");
+
+        } else {
+
+            $("#tblInvoiceRequest").show("");
+            //if (paginationShow == 1) {
+            $("#tblInvoiceRequest").css('width', 'auto');
+                $('#tblInvoiceRequest').DataTable({
+                    "bSort": true,
+                    "pagingType": "input",
+                    "columnDefs": [
+                        { "orderable": false, "targets": -1 }
+                    ],
+
+
+            });
+          
+            hideLoader();
+
+
+        }
+
+
+    }
+
+    function showLoader() {
+        $(".loading").css("display", "");
+    }
+
+    function hideLoader() {
+        setTimeout(function () {
+            $(".loading").css("display", "none");
+        }, 1000);
+    }
+
+</script>
+

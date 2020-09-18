@@ -1,0 +1,53 @@
+﻿@model Vativo.UI.ViewModels.FileDetailViewModel
+
+@{
+    ViewData["Title"] = "NCPDP :: File History";
+    Layout = null;
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 headerSection"><h4>File History</h4></div>
+        <div class="col-sm-12 col-md-12 ">
+            @{
+                foreach (var item in ViewBag.FileList)
+                {
+                    <div class="ajax-container">
+                        <div class="controls">
+                            <div class="headerBox">
+                                <div class="row">
+                                </div>                          
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4" style="display:inline-block; float:right; text-align: right;">
+                                            <a id="download" class="btn btn-primary" href="@Url.Action("FileDownload", "file", new {claimRequestId = item.ClaimRequestId  })">Download</a>
+                                           @* <a href="@Url.Action("RevokeClaimRequest", "file", new {FilePath=item.FilePath, ClaimRequestId = item.ClaimRequestId })" class="btn btn-primary" title="View" data-id=@item.ClaimRequestId>Revoke</a>*@
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4"><strong>Submission Id:</strong> &nbsp;<span class="headerContent">@item.ClaimRequestId</span></div>
+                                        <div class="col-md-4"><strong>Modified By:</strong> &nbsp;<span class="headerContent">@item.ModifiedBy</span></div>
+
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-md-4"><strong>Status:</strong> &nbsp;<span class="headerContent">@item.Status</span></div>
+                                        <div class="col-md-4"><strong>Submission Date:</strong> &nbsp;<span class="headerContent">@item.CreatedOn</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div id="fileData"
+                                     class="hot handsontable dataTable table-striped center-block col-md-12"></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="filedetails">Back to List</a>
+</div>
+

@@ -1,0 +1,143 @@
+﻿@model Vativo.UI.ViewModels.ReportRebateClaimViewModel
+@{
+    ViewBag.Title = ":: VativoRx :: Rebate Claim List";
+}
+
+<form method="post" class="postMar">
+    <section>
+        <div class="@ViewBag.cssClass" role="alert">
+            <strong>@ViewBag.message</strong>
+        </div>
+        <div class="">
+            <div class="">
+                <div class="">
+                    <div class="clearfix formb-bt-border">
+                        <div class="left clientnameHead">
+                            <h4>Rebate Claim List</h4>
+                        </div>
+                        <div class="right clientcomnBtn">
+                            @Html.ActionLink("Request Report", "RebateClaimFileReport", "Report", null, new { @class = "btn btn-primary btn-round" })
+                        </div>
+                    </div>
+                    <table id="tblRebateClaimFile" class="table table-striped table-bordered tabSort" cellspacing="0" width="100%">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Serial No.</th>
+                                <th>NPI</th>
+                                <th>Legal Name</th>
+                                <th>Brand Rate</th>
+                                <th>Specialty Rate</th>
+                                <th>Rebate Percentage</th>
+                                <th>Uploaded Date</th>
+                                <th>Last Modified By</th>
+                                <th>Rebate Report Status</th>
+                                <th>Repackage Report Status</th>
+                                <th>Claim Analysis Status</th>
+                                <th align="center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var i = 1;
+                                foreach (var item in ViewBag.RebateClaimReport)
+                                {
+                            <tr class="odevFont">
+                                <td width="5%">@i</td>
+                                <td class="npi-section">
+                                    <label>@item.NPI</label>
+                                </td>
+                                <td>
+                                    <label>@item.LegalName</label>
+                                </td>
+                                <td>
+                                    <label>@item.BrandRate</label>
+                                </td>
+                                <td>
+                                    <label>@item.SpecialityRate</label>
+                                </td>
+                                <td>
+                                    <label>@item.RebatePercentage</label>
+                                </td>
+                                <td>
+                                    <label>@item.CreatedOn</label>
+                                </td>
+                                <td>
+                                    <label>@item.UserName</label>
+                                </td>
+                                <td>
+                                    @if (item.FileStatus == "Pending" || item.FileStatus == "Exception" || item.RepackageFileStatus == "Error")
+                                    {
+                                        <label>@item.FileStatus</label>
+                                    }
+                                    else if (item.FileStatus == "Done" && item.ReportFilePath == null)
+                                    {
+                                        <label>No Record Found</label>
+                                    }
+                                    else
+                                    {
+                                        <a id="download" href="@Url.Action("FileDownload", "Report", new { ReportId=item.UniqueRebateclaimId, ReportType="Rebate"  })">Download</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.RepackageFileStatus == "Pending" || item.RepackageFileStatus == "Exception" || item.RepackageFileStatus == "Error")
+                                    {
+                                        <label>@item.RepackageFileStatus</label>
+                                    }
+                                    else if (item.RepackageFileStatus == "Done" && item.RepackageReportFilePath == null)
+                                    {
+                                        <label>No Record Found</label>
+                                    }
+                                    else
+                                    {
+                                        <a id="download" href="@Url.Action("FileDownload", "Report", new { ReportId=item.UniqueRebateclaimId, ReportType="Repackaged"  })">Download</a>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.ClaimSummaryFileStatus == "Pending" || item.ClaimSummaryFileStatus == "Exception" || item.RepackageFileStatus == "Error")
+                                    {
+                                        <label>@item.ClaimSummaryFileStatus</label>
+                                    }
+                                    else
+                                    {
+                                        <a id="download" href="@Url.Action("FileDownload", "Report", new {  ReportId=item.UniqueRebateclaimId, ReportType="ClaimAnalysis" })">Download</a>
+                                    }
+                                </td>
+                                <td align="center" class="iconSection">
+                                    @*@if (item.FileStatus == "Pending")
+            {
+                @*<a href="@Url.Action("RebateClaimFileReport", "Report", new { reportID = item.Id})" title="Edit" data-id=@item.Id><img class="icon-mar" src="~/images/ico/edit.png" /></a>*@
+                                    @*<a href="@Url.Action("DeleteRebateClaimReport", "Report", new { reportID = item.Id})" title="Delete" data-id=@item.Id onclick="return confirm('Are you sure, you want to delete?');"><img class="icon-mar" src="~/images/ico/delete.png" /></a>*@
+                                    @*}*@
+                                    <a href="@Url.Action("DeleteRebateClaimReport", "Report", new { reportID = item.UniqueRebateclaimId})" title="Delete" data-id=@item.UniqueRebateclaimId onclick="return confirm('Are you sure, you want to delete?');"><img class="icon-mar" src="~/images/ico/delete.png" /></a>
+                                    @*<input asp-for="RebateClaimId" type="hidden" value="@item.Id" />*@
+                                    @*<input asp-for="Id" type="hidden" value="@item.Id" />*@
+                                    <input asp-for="UniqueRebateclaimId" type="hidden" value="@item.UniqueRebateclaimId" />
+                                </td>
+                            </tr>
+                                    i++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    <!-- latest-jobs-ads -->
+                </div>
+            </div>
+        </div><!-- container -->
+    </section><!-- ad-profile-page -->
+</form>
+
+<script type="text/javascript" class="init">
+    $(document).ready(function () {
+        $('#tblRebateClaimFile').DataTable({
+            "bSort": true, "scrollX": true, "pagingType": "input", "columnDefs": [
+                { "orderable": false, "targets": -1 }
+            ] });
+    });
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+
+</script>

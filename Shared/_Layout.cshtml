@@ -1,0 +1,524 @@
+﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<html lang="en">
+<head>
+    <title>@ViewBag.Title </title>
+    <meta http-equiv="content-type" content="text/html" charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="~/js/jquery-3.1.0.min.js"></script>
+    <script src="~/js/jquery-ui.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.dataTables.min.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+
+    <!-- Carter's custom theme stuff   -->
+    <link href="~/css/theme.css" rel="stylesheet">
+    <link href="~/css/jquery-ui.theme.min.css" rel="stylesheet">
+    <link href="~/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="~/fonts/feather/feather.css" rel="stylesheet">
+    <link href="~/css/Chart.min.css" rel="stylesheet">
+    <script src="~/js/dashkit.min.js"></script>
+    <script src="~/js/theme.min.js"></script>
+    <!-- Carter's custom theme stuff [/END]  -->
+
+    <!--     <link rel="stylesheet" href="~/css/bootstrap.min.css"> -->
+    <!--     <link href="~/css/style.css" rel="stylesheet" /> -->
+
+    <!--     <link href="~/css/jquery-ui.css" rel="stylesheet" /> -->
+    <!--     <link href="~/css/jquery.dataTables.min.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous"
+          asp-fallback-href="~/css/all.css"
+          asp-fallback-test-class="fab" asp-fallback-test-property="font-style" asp-fallback-test-value="normal"
+          asp-suppress-fallback-integrity="true" />
+</head>
+<body>
+    <div class="wraper">
+        <header>
+            <div class="main_nav">
+                <nav class="navbar navbar-expand-lg navbar-light">
+                    <a class="navbar-brand" href="@Url.Action("index", "dashboard")"><img src="~/images/VativoRxLogo.fw_.png" class="zoomlogo"></a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            @{
+                                if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ISLIVECLAIMSUBMISSION) == CLIENT.LIVECLAIMSUBMISSION)
+                                {
+
+                                    if ((@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.CLIENT_ADMIN))
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="@Url.Action("index", "user")">
+                                                USER LIST
+                                            </a>
+                                         </li>
+                                    }
+                                    else if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_SALES_REPRESENTATIVE)
+                                    {
+                                        <li class="nav-item dropdown">
+                                             <a class="nav-link dropdown-toggle" href="@Url.Action("index", "user")">
+                                             CLIENT LIST
+                                             </a>
+                                         </li>
+                                    }
+
+
+                                    if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN ||
+                                    (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER))
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                REGISTRATION
+                                                <span class="caret"></span>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="@Url.Action("index", "client")">Client</a>
+                                                <a class="dropdown-item" href="@Url.Action("index", "user")">User</a>
+                                            </div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="@Url.Action("KeywordListView", "master")">
+                                                KEYWORD MASTER
+                                            </a>
+                                        </li>
+                                    }
+                                }
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        CLAIM FILES
+                                        <span class="caret"></span>
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        @if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ISLIVECLAIMSUBMISSION) != "True")
+                                        {
+                                            <a class="dropdown-item" href="@Url.Action("filedetails", "file")">SUBMITTED FILE</a>
+                                            if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN ||
+                                    (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER))
+                                            {
+                                                <a class="dropdown-item" href="@Url.Action("LiveClaimFileList", "file")">LIVE CLAIM FILE</a>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <a class="dropdown-item" href="@Url.Action("LiveClaimFileList", "file")">LIVE CLAIM FILE</a>
+                                        }
+                                    </div>
+                                </li>
+
+
+                                if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ISLIVECLAIMSUBMISSION) == CLIENT.LIVECLAIMSUBMISSION)
+                                {
+                                    if ((@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.ADMIN))
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">CONFIG<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("UserPasswordReset", "User")">Change Client Password</a>
+                                                @*<a class="dropdown-item" href="@Url.Action("RecepientConfiguration", "configuration")">Recepient Configuration</a>*@
+                                                <a class="dropdown-item" href="@Url.Action("ConfigurationFileUpload", "configuration")">Import NPI/Brand Medicine</a>
+                                                @*<a class="dropdown-item" href="@Url.Action("Provider", "configuration")">Change Switch</a>*@
+                                                <a class="dropdown-item" href="@Url.Action("SystemConfiguration", "SystemConfiguration")">SYSTEM CONFIGURATION</a>
+                                            </div>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">REPORTS<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("ClientSummaryReport", "Report")">Summary Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("ClaimFileReportList", "Report")">Claim Detailed Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("SpecialtyAndNonSpecialtyReport", "Report")">Specialty/Non-Specialty Utilization Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("AdminFinancialReport", "Report")">Financial Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("RebateClaimFileReportList", "Report")">Rebate Claim Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("SalesRepresentativelReport", "Report")">Sales Representative Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("OptumClaimReportList", "Report")">OPTUM CORRECTION </a>
+                                            </div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="@Url.Action("Index", "Invoice")">INVOICE</a>
+                                        </li>
+                                    }
+                                    else if ((@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_STANDARD_USER))
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">CONFIGURATION<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("UserPasswordReset", "User")">Change Client Password</a>
+                                                <a class="dropdown-item" href="@Url.Action("ConfigurationFileUpload", "configuration")">Import NPI/Brand Medicine</a>
+                                            </div>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">REPORTS<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("ClientSummaryReport", "Report")">Summary Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("ClaimFileReportList", "Report")">Claim Detailed Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("SpecialtyAndNonSpecialtyReport", "Report")">Specialty/Non-Specialty Utilization Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("RebateClaimFileReportList", "Report")">Rebate Claim Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("SalesRepresentativelReport", "Report")">Sales Representative Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("OptumClaimReportList", "Report")">OPTUM CORRECTION </a>
+                                            </div>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="@Url.Action("Index", "Invoice")">INVOICE</a>
+                                        </li>
+
+                                    }
+                                    else if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.VATIVO_SALES_REPRESENTATIVE)
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">REPORTS<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("SalesRepresentativelReport", "Report")">Sales Representative Report</a>
+                                            </div>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">REPORTS<span class="caret"></span></a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="@Url.Action("ClientSummaryReport", "Report")">Summary Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("ClaimFileReportList", "Report")">Claim Detailed Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("SpecialtyAndNonSpecialtyReport", "Report")">Specialty/Non Specialty Utilization Report</a>
+                                                <a class="dropdown-item" href="@Url.Action("ClientFinancialReport", "Report")">Financial Report</a>
+                                            </div>
+                                        </li>
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">REPORTS<span class="caret"></span></a>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="@Url.Action("RebateClaimFileReportList", "Report")">Rebate Claim Report</a>
+                                        </div>
+                                    </li>
+                                }
+                            }
+
+                            @{
+                                if (@HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.STANDARD_USER || @HttpContextAccessor.HttpContext.Session.GetString(Utility.ROLENAME) == ROLE_NAME.CLIENT_ADMIN)
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link dropdown-item" href="@Url.Action("SupportQuery", "SupportPage")">SUPPORT</a>
+                                    </li>
+                                }
+                            }
+                        </ul>
+
+
+                        <ul class="nav navbar-nav navbar-right menu-navbar-right userNameText">
+                            <div class="dropdown">
+                                <a href="#" class="dropdown-ellipses dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <li class="headerText">
+                                        <strong style="color:#075C74">@HttpContextAccessor.HttpContext.Session.GetString("UserName")</strong>
+                                    </li>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right">
+                                    <a class="dropdown-item" href="@Url.Action("changepassword", "user")">CHANGE PASSWORD</a>
+                                    <a href="@Url.Action("logout", "user")" class="dropdown-item">&nbsp;Sign Out</a>
+                                </div>
+                            </div>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <div class="page">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12" class="leftSection">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="container">
+                <div class="col-md-12">
+                    <div class="ftext">
+                        <p>Copyright © <label id="idyear"></label> VativoRx, LLC. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
+<style>
+    .paginate_input {
+        width: 50px;
+    }
+</style>
+<script>
+    jQuery(document).ready(function () {
+        var current_date = new Date();
+        var date = current_date.getFullYear();
+        $("#idyear").text(date);
+        $("#mySidenav").hide();
+        $('#mySidenav').load('@Url.Action("ClientDetailPartialView", "Dashboard")');
+
+        if ('@HttpContextAccessor.HttpContext.Session.GetString("RoleName")' == "Client") {
+            $("#mySidenav").show();
+        }
+
+        /*$('.navbar-nav').on('click', 'li', function () {
+            alert();
+            $('.navbar-nav li.active').removeClass('active');
+            $(this).addClass('active');
+        });*/
+
+    });
+
+
+
+    (function ($) {
+        function calcDisableClasses(oSettings) {
+            var start = oSettings._iDisplayStart;
+            var length = oSettings._iDisplayLength;
+            var visibleRecords = oSettings.fnRecordsDisplay();
+            var all = length === -1;
+
+            // Gordey Doronin: Re-used this code from main jQuery.dataTables source code. To be consistent.
+            var page = all ? 0 : Math.ceil(start / length);
+            var pages = all ? 1 : Math.ceil(visibleRecords / length);
+
+            var disableFirstPrevClass = (page > 0 ? '' : oSettings.oClasses.sPageButtonDisabled);
+            var disableNextLastClass = (page < pages - 1 ? '' : oSettings.oClasses.sPageButtonDisabled);
+
+            return {
+                'first': disableFirstPrevClass,
+                'previous': disableFirstPrevClass,
+                'next': disableNextLastClass,
+                'last': disableNextLastClass
+            };
+        }
+
+        function calcCurrentPage(oSettings) {
+            return Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength) + 1;
+        }
+
+        function calcPages(oSettings) {
+            return Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength);
+        }
+
+        var firstClassName = 'first';
+        var previousClassName = 'previous';
+        var nextClassName = 'next';
+        var lastClassName = 'last';
+
+        var paginateClassName = 'paginate';
+        var paginatePageClassName = 'paginate_page';
+        var paginateInputClassName = 'paginate_input';
+        var paginateTotalClassName = 'paginate_total';
+
+        $.fn.dataTableExt.oPagination.input = {
+            'fnInit': function (oSettings, nPaging, fnCallbackDraw) {
+                var nFirst = document.createElement('span');
+                var nPrevious = document.createElement('span');
+                var nNext = document.createElement('span');
+                var nLast = document.createElement('span');
+                var nInput = document.createElement('input');
+                var nTotal = document.createElement('span');
+                var nInfo = document.createElement('span');
+
+                var language = oSettings.oLanguage.oPaginate;
+                var classes = oSettings.oClasses;
+                var info = language.info || 'Page _INPUT_ of _TOTAL_';
+
+                nFirst.innerHTML = language.sFirst;
+                nPrevious.innerHTML = language.sPrevious;
+                nNext.innerHTML = language.sNext;
+                nLast.innerHTML = language.sLast;
+
+                nFirst.className = firstClassName + ' ' + classes.sPageButton;
+                nPrevious.className = previousClassName + ' ' + classes.sPageButton;
+                nNext.className = nextClassName + ' ' + classes.sPageButton;
+                nLast.className = lastClassName + ' ' + classes.sPageButton;
+
+                nInput.className = paginateInputClassName;
+                nTotal.className = paginateTotalClassName;
+
+                if (oSettings.sTableId !== '') {
+                    nPaging.setAttribute('id', oSettings.sTableId + '_' + paginateClassName);
+                    nFirst.setAttribute('id', oSettings.sTableId + '_' + firstClassName);
+                    nPrevious.setAttribute('id', oSettings.sTableId + '_' + previousClassName);
+                    nNext.setAttribute('id', oSettings.sTableId + '_' + nextClassName);
+                    nLast.setAttribute('id', oSettings.sTableId + '_' + lastClassName);
+                }
+
+                nInput.type = 'text';
+
+                info = info.replace(/_INPUT_/g, '</span>' + nInput.outerHTML + '<span>');
+                info = info.replace(/_TOTAL_/g, '</span>' + nTotal.outerHTML + '<span>');
+                nInfo.innerHTML = '<span>' + info + '</span>';
+
+                nPaging.appendChild(nFirst);
+                nPaging.appendChild(nPrevious);
+                $(nInfo).children().each(function (i, n) {
+                    nPaging.appendChild(n);
+                });
+                nPaging.appendChild(nNext);
+                nPaging.appendChild(nLast);
+
+                $(nFirst).click(function () {
+                    var iCurrentPage = calcCurrentPage(oSettings);
+                    if (iCurrentPage !== 1) {
+                        oSettings.oApi._fnPageChange(oSettings, 'first');
+                        fnCallbackDraw(oSettings);
+                    }
+                });
+
+                $(nPrevious).click(function () {
+                    var iCurrentPage = calcCurrentPage(oSettings);
+                    if (iCurrentPage !== 1) {
+                        oSettings.oApi._fnPageChange(oSettings, 'previous');
+                        fnCallbackDraw(oSettings);
+                    }
+                });
+
+                $(nNext).click(function () {
+                    var iCurrentPage = calcCurrentPage(oSettings);
+                    if (iCurrentPage !== calcPages(oSettings)) {
+                        oSettings.oApi._fnPageChange(oSettings, 'next');
+                        fnCallbackDraw(oSettings);
+                    }
+                });
+
+                $(nLast).click(function () {
+                    var iCurrentPage = calcCurrentPage(oSettings);
+                    if (iCurrentPage !== calcPages(oSettings)) {
+                        oSettings.oApi._fnPageChange(oSettings, 'last');
+                        fnCallbackDraw(oSettings);
+                    }
+                });
+
+                $(nPaging).find('.' + paginateInputClassName).keyup(function (e) {
+                    // 38 = up arrow, 39 = right arrow
+                    if (e.which === 38 || e.which === 39) {
+                        this.value++;
+                    }
+                    // 37 = left arrow, 40 = down arrow
+                    else if ((e.which === 37 || e.which === 40) && this.value > 1) {
+                        this.value--;
+                    }
+
+                    if (this.value === '' || this.value.match(/[^0-9]/)) {
+                        /* Nothing entered or non-numeric character */
+                        this.value = this.value.replace(/[^\d]/g, ''); // don't even allow anything but digits
+                        return;
+                    }
+
+                    var iNewStart = oSettings._iDisplayLength * (this.value - 1);
+                    if (iNewStart < 0) {
+                        iNewStart = 0;
+                    }
+                    if (iNewStart >= oSettings.fnRecordsDisplay()) {
+                        iNewStart = (Math.ceil((oSettings.fnRecordsDisplay()) / oSettings._iDisplayLength) - 1) * oSettings._iDisplayLength;
+                    }
+
+                    oSettings._iDisplayStart = iNewStart;
+                    fnCallbackDraw(oSettings);
+                });
+
+                // Take the brutal approach to cancelling text selection.
+                $('span', nPaging).bind('mousedown', function () { return false; });
+                $('span', nPaging).bind('selectstart', function () { return false; });
+
+                // If we can't page anyway, might as well not show it.
+                var iPages = calcPages(oSettings);
+                if (iPages <= 1) {
+                    $(nPaging).hide();
+                }
+            },
+
+            'fnUpdate': function (oSettings) {
+                if (!oSettings.aanFeatures.p) {
+                    return;
+                }
+
+                var iPages = calcPages(oSettings);
+                var iCurrentPage = calcCurrentPage(oSettings);
+
+                var an = oSettings.aanFeatures.p;
+                if (iPages <= 1) // hide paging when we can't page
+                {
+                    $(an).hide();
+                    return;
+                }
+
+                var disableClasses = calcDisableClasses(oSettings);
+
+                $(an).show();
+
+                // Enable/Disable `first` button.
+                $(an).children('.' + firstClassName)
+                    .removeClass(oSettings.oClasses.sPageButtonDisabled)
+                    .addClass(disableClasses[firstClassName]);
+
+                // Enable/Disable `prev` button.
+                $(an).children('.' + previousClassName)
+                    .removeClass(oSettings.oClasses.sPageButtonDisabled)
+                    .addClass(disableClasses[previousClassName]);
+
+                // Enable/Disable `next` button.
+                $(an).children('.' + nextClassName)
+                    .removeClass(oSettings.oClasses.sPageButtonDisabled)
+                    .addClass(disableClasses[nextClassName]);
+
+                // Enable/Disable `last` button.
+                $(an).children('.' + lastClassName)
+                    .removeClass(oSettings.oClasses.sPageButtonDisabled)
+                    .addClass(disableClasses[lastClassName]);
+
+                // Paginate of N pages text
+                $(an).find('.' + paginateTotalClassName).html(iPages);
+
+                // Current page number input value
+                $(an).find('.' + paginateInputClassName).val(iCurrentPage);
+            }
+        };
+    })(jQuery);
+
+    //$(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
+    //    //this.value = this.value.replace(/[^0-9\.]/g,'');
+    //    $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
+    //    if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+    //        event.preventDefault();
+    //    }
+    //});
+
+    $(".allownumeric").on("keypress keyup blur", function (event) {
+
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    $(".allownumericwithdecimal").keypress(function (event) {
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && ((event.which < 48 || event.which > 57) && (event.which != 0 && event.which != 8))) {
+            event.preventDefault();
+        }
+
+        var text = $(this).val();
+        if ((text.indexOf('.') != -1) && (text.substring(text.indexOf('.')).length > 2) && (event.which != 0 && event.which != 8) && ($(this)[0].selectionStart >= text.length - 2)) {
+            event.preventDefault();
+        }
+    });
+
+
+
+</script>
+<script src="~/js/styling-jquery.js"></script>
+
+

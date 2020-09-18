@@ -1,0 +1,331 @@
+﻿@*@model RegistrationViewModel*@
+@model Vativo.UI.ViewModels.RegistrationViewModel
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewBag.Title = ":: VativoRx :: Registration";
+}
+
+
+
+<h3 class="client-hdg">User Detail</h3>
+<hr />
+<script src="~/js/multiple-select.js"></script>
+<link href="~/css/multiple-select.css" rel="stylesheet" />
+<div class="@ViewBag.cssClass" role="alert">
+    <strong>@ViewBag.message</strong>
+</div>
+<form method="post">
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="contact-form regs-main">
+                <div class="row">
+                    <div class="col-md-12 col-sm-6 col-xs-12 pls-area">
+                        <div class=@ViewBag.Class asp-validation-summary="ModelOnly"></div>
+                    </div>
+                    <div class="col-md-12 col-sm-6 col-xs-12">
+
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label>User Type</label><span class="required Validation-Color">*</span>
+                            <select asp-for="UserType" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.UserTypeList)"></select>
+                            <span asp-validation-for="UserType" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="RoleId" class="role-label">Select Role</label><span class="required Validation-Color">*</span>
+                            <select asp-for="RoleId" class="form-control"></select>
+                            <span asp-validation-for="RoleId" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght" id="ClientsLegalName">
+                            <label>Clients Legal Name</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientUserID" class="form-control multiselect" asp-items="@ViewBag.ClientsLegalNameList as MultiSelectList" multiple="multiple"></select>
+                            <span id="ClientUserIDSpan" class="Validation-Color"></span>
+                        </div>
+                        <div class="form-group form-hght" id="ClientsLegal">
+                            <label>Clients Legal Name</label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientLegalID" class="form-control" asp-items="@(new SelectList(ViewBag.ClientsLegalNameList, "Value", "Text"))">
+                                <option value="">Select Legal Name</option>
+                            </select>
+                            <span asp-validation-for="ClientLegalID" class="Validation-Color"></span>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 ">
+                        <div class="form-group form-hght selectDropdown selectDropwnHeight" id="ClientNPI">
+                            <label>Clients NPI </label><span class="required Validation-Color">*</span>
+                            <select asp-for="ClientsNPI" class="form-control multiselect" multiple="multiple"></select>
+                            <span asp-validation-for="ClientsNPI" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="FirstName" class="fistname-label">First Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="FirstName" class="form-control" placeholder="First Name" maxlength="50" />
+                            <span asp-validation-for="FirstName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="LastName" class="lastname-label">Last Name</label><span class="required Validation-Color">*</span>
+                            <input asp-for="LastName" class="form-control" placeholder="Last Name" maxlength="50" />
+                            <span asp-validation-for="LastName" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="Phone" class="phone-label">Phone Number</label><span class="required Validation-Color">*</span>
+                            <input asp-for="Phone" onkeypress="if(isNaN(String.fromCharCode(event.keyCode))) return false;" class="form-control" placeholder="Phone" maxlength="10" />
+                            <span asp-validation-for="Phone" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="Email" class="Email-label">Email</label><span class="required Validation-Color">*</span>
+                            <input asp-for="Email" class="form-control" placeholder="Email" />
+                            <span asp-validation-for="Email" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="Password" class="pwd-label">Password</label><span class="required Validation-Color">*</span>
+                            <input asp-for="Password" class="form-control" placeholder="Password" />
+                            <span asp-validation-for="Password" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="ConfirmPassword" class="cPwd-label">Confirm Password</label><span class="required Validation-Color">*</span>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" />
+                            <span asp-validation-for="ConfirmPassword" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group form-hght">
+                            <label for="EmploymentTerminationDate" cl0ass="date-label">Employee Termination Date</label>
+                            <input asp-for="EmploymentTerminationDate" class="form-control" placeholder="mm/dd/yyyy" />
+                            <span asp-validation-for="EmploymentTerminationDate" class="Validation-Color"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12 reg-area regMar pull-right">
+                        <input id="RegisterForm" type="submit" value="Register" onclick="return CheckValidation();" class="btn btn-primary btn-round registerBtn" />
+                        <span>&nbsp;</span>
+                        @Html.ActionLink("Cancel", "index", "user", null, new { @class = "btn btn-primary btn-round hght-reg" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    var today = new Date();
+    var date = (today.getMonth() + 1) + '/' + today.getDate() + '/' + today.getFullYear();
+
+    $(document).ready(function () {
+
+        $("#EmploymentTerminationDate").datepicker({
+            dateFormat: "mm/dd/yy",
+            minDate: "01/01/1925",
+            maxDate: "31/12/2050",
+            onClose: function (selectedDate) {
+            //onClose: function (dateText) {
+                try {
+                   // $.datepicker.parseDate('dd/mm/yy', dateText);
+                    var minDate = $(this).datepicker('getDate');
+                    //var newMin = minDate == null ? new Date(date) : new Date(minDate.setDate(minDate.getDate()));
+                    var newMin = new Date(minDate.setDate(minDate.getDate())); //Added By Pooja on 12/11/19
+                    $("#EmploymentTerminationDate").datepicker("option", "defaultDate", newMin);
+                }
+                catch(e){
+                    //alert("Please Select Valid Date");
+                };
+
+            }
+        });
+
+        function preventMultipleSubmissions() {
+            $('#RegisterForm').prop('disabled', true);
+        }
+        window.onbeforeunload = preventMultipleSubmissions;
+
+        $("#ClientUserID").multipleSelect({
+            filter: true,
+            placeholder: "--Select Legal Name--"
+        })
+
+        if ($("#RoleId option:selected").text() == 'Sales Representative' && $('#UserType').val() == 1) {
+            $("#ClientsLegalName").show();
+            $("#ClientNPI").show();
+            $("#ClientsLegal").hide();
+        }
+    });
+
+    $("#UserType").change(function () {
+        ChangeRole();
+    });
+
+    var selectedValue = '@Model.RoleId';
+    if (selectedValue != null) {
+        ChangeRole();
+        $("#RoleId option:selected").val(selectedValue);
+       }
+    $('#RoleId option').map(function () {
+        if ($(this).val() == selectedValue) return this;
+    }).attr('selected', 'selected');
+
+    $("#RoleId").change(function () {
+        var UserType = $('#UserType').val();
+        var roleType = $("#RoleId option:selected").text();
+        if (roleType == 'Sales Representative' && UserType==1) {
+            $("#ClientsLegalName").show();
+            $("#ClientNPI").show();
+            $("#ClientsLegal").hide();
+        }
+        else if (UserType == 2)
+        {
+            $("#ClientsLegalName").hide();
+            $("#ClientNPI").hide();
+            $("#ClientsLegal").show();
+        }
+        else {
+            $("#ClientsLegalName").hide();
+            $("#ClientNPI").hide();
+            $("#ClientsLegal").hide();
+        }
+    });
+
+    $("#ClientUserID").change(function () {
+        var ClientsId = $('#ClientUserID').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetClientsNPI", "user")',
+            //async: false,
+            dataType: 'json',
+            data: { ClientsId: ClientsId },
+            // Get NPI details.
+            success: function (data) {
+                var selectbox = document.getElementById('ClientsNPI');
+                $('#ClientsNPI').empty();
+                optn = document.createElement("option");
+                //optn.text = 'Select Clients NPI';
+                //optn.value = '0';
+                console.log(data);
+                selectbox.options.add(optn);
+                for (var i = 0; i < data.length; i++) {
+                    optn = document.createElement("option");
+                    optn.text = data[i].text;
+                    optn.value = data[i].value;
+                    selectbox.options.add(optn);
+                    selectbox.options.selected = true;
+                    // $('#ClientsNPI').prop('selected', true);
+                }
+            },
+        });
+    });
+
+      function CheckValidation() {
+          var ClientUserID = $("#ClientUserID").val();
+          if (!$("#ClientsLegalName").is(":hidden")) {
+              if (ClientUserID == "" || ClientUserID == null) {
+                  $("#ClientUserIDSpan").text('Please select Legal Name!');
+                  return false;
+              }
+              else {
+                  $("#ClientUserIDSpan").text('').remove;
+                  return true;
+              }
+          }
+          else {
+              $("#ClientUserIDSpan").text('').remove;
+              return true;
+          }
+    }
+
+    function GetUserRole() {
+          $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetUserRoleByUserType", "role")',
+                 //async: false,
+                dataType: 'json',
+             data: { UserType: $('#UserType').val()},
+                // Get NPI details.
+                success: function (data) {
+                    var selectbox = document.getElementById('RoleId');
+                    $('#RoleId').empty();
+                    optn = document.createElement("option");
+                    optn.text = '--Select Role--';
+                    optn.value = '';
+                    selectbox.options.add(optn);
+                    for (var i = 0; i < data.length; i++) {
+                        optn = document.createElement("option");
+                        optn.text = data[i].roleName;
+                        optn.value = data[i].roleId;
+                        selectbox.options.add(optn);
+                    }
+             },
+        });
+    }
+
+    function ChangeRole() {
+        var UserType = $('#UserType').val();
+        if (UserType == 1) {
+            $("#ClientsLegalName").hide();
+            $("#ClientNPI").hide(); $("#ClientsLegal").hide();
+        }
+        else if (UserType == 2) {
+            $("#ClientsLegalName").hide();
+            $("#ClientNPI").hide();
+            $("#ClientsLegal").show();
+        }
+        else {
+            $("#ClientsLegalName").hide();
+            $("#ClientNPI").hide();
+            $("#ClientsLegal").hide();
+        }
+       $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetUserRoleByUserType", "role")',
+                async: false,
+                dataType: 'json',
+                data: { UserType: UserType },
+                // Get NPI details.
+                success: function (data) {
+                    var selectbox = document.getElementById('RoleId');
+                    $('#RoleId').empty();
+                    optn = document.createElement("option");
+                    optn.text = '--Select Role--';
+                    optn.value = '';
+                    selectbox.options.add(optn);
+                    for (var i = 0; i < data.length; i++) {
+                        optn = document.createElement("option");
+                        optn.text = data[i].roleName;
+                        optn.value = data[i].roleId;
+                        selectbox.options.add(optn);
+                    }
+                },
+            });
+    }
+
+    window.setTimeout(function () {
+        $(".alert").fadeTo(500, 0).slideUp(500, function () {
+            $(this).remove();
+        });
+    }, 4000);
+</script>
+
